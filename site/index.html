@@ -78,6 +78,23 @@ td.n,th.n{text-align:left}
 .big{font-size:34px;font-weight:700}
 .muted{color:var(--muted)}
 .empty{color:var(--muted);font-size:13px;padding:20px 0}
+/* 6-month plan */
+.p6bar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;margin:6px 0 12px}
+.p6bar i{display:block;height:100%;background:var(--c1);border-radius:999px}
+.p6phases{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.p6phases div{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 6px;text-align:center;font-size:12px;color:var(--muted)}
+.p6phases div b{display:block;font-size:13px;color:var(--text);margin-bottom:2px}
+.p6phases div.cur{border-color:var(--accent);color:var(--text)}
+.p6phases div.done{opacity:.55}
+@media(max-width:560px){.p6phases{grid-template-columns:repeat(2,1fr)}}
+.p6focus{background:var(--card2);border-radius:12px;padding:12px 16px;margin-bottom:14px;line-height:1.9;font-size:14px}
+.p6focus b{color:var(--accent)}
+.p6h{font-size:15px;font-weight:700;margin:16px 0 8px}
+.pbar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;min-width:80px}
+.pbar i{display:block;height:100%;background:var(--c1);border-radius:999px}
+.p6in{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;width:120px;direction:ltr;text-align:center}
+.bodyrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--grid)}
+.bodyrow span{color:var(--muted)}
 /* lock screen */
 #lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 #lock .box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:380px;text-align:center}
@@ -115,6 +132,26 @@ td.n,th.n{text-align:left}
 
   <div id="alerts"></div>
   <div class="grid kpis" id="kpis"></div>
+
+  <section class="card" id="p6Card">
+    <div class="row"><h2 style="margin:0">خطة 6 أشهر</h2><div class="sp"></div><span class="muted" id="p6Days" style="font-size:13px"></span></div>
+    <div class="p6bar"><i id="p6Fill"></i></div>
+    <div class="p6phases" id="p6Phases"></div>
+    <div class="p6focus" id="p6Focus"></div>
+    <h3 class="p6h">المؤشرات (آخر 14 يوم مقابل البداية والهدف)</h3>
+    <div style="overflow-x:auto"><table id="p6Table"></table></div>
+    <h3 class="p6h">الوزن والخصر</h3>
+    <p class="hint">سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط.</p>
+    <div class="row" id="bodyForm">
+      <input type="number" step="0.1" inputmode="decimal" id="bwW" placeholder="الوزن كغ" class="p6in">
+      <input type="number" step="0.5" inputmode="decimal" id="bwC" placeholder="الخصر سم" class="p6in">
+      <button class="btn on" id="bwAdd">حفظ</button>
+      <button class="btn" id="bwCopy">نسخ السجل</button>
+    </div>
+    <div id="bodyStats"></div>
+    <div class="chart sm" id="bodyChartWrap"><canvas id="bodyChart"></canvas></div>
+    <div id="bodyList"></div>
+  </section>
 
   <section class="card" id="planCard">
     <h2>خطة النوم</h2>
@@ -277,7 +314,7 @@ function render(data){
   D = data;
   $("#meta").innerHTML = `آخر تحديث <span class="num">${data.meta.generated}</span> · بيانات <span class="num">${nf(data.meta.days)}</span> يوم من ${dshort(data.meta.first)} ${data.meta.first.slice(0,4)}`;
   renderAlerts(); renderKpis(); renderDrivers(); setupTrend(); setupNights(); renderNadir(); renderBeds();
-  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts(); renderPlan();
+  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts(); renderPlan(); renderP6();
 }
 
 function renderAlerts(){
@@ -468,6 +505,96 @@ function renderExtra(){
     <table><tr><th></th><th class="n">قبل</th><th class="n">رمضان</th></tr>
     ${row("التعافي %", ...x.recovery)}${row("HRV", ...x.hrv)}${row("نبض الراحة", ...x.rhr)}${row("النوم", ...x.sleep_h, hm)}${row("وقت النوم", ...x.bed, v=>v)}</table>`).join("<div style='height:14px'></div>");
 }
+
+/* 6-month plan */
+const P6 = {
+  start:"2026-09-27", end:"2027-03-27",
+  phases:[
+    {n:"التأسيس", a:"2026-09-27", b:"2026-10-31", items:[
+      "<b>الإبرة:</b> ثبّت يومها (الأفضل ليلة الخميس) وارفع لـ 5 مع طبيبك بعد 4 أسابيع",
+      "<b>بروتين 140 غرام:</b> سكوب الصبح وسكوب العصر وابدأ كل وجبة بالبروتين",
+      "<b>حديد مرتين:</b> الأحد والأربعاء الصبح 20 دقيقة (برنامج A وB)",
+      "<b>الغرفة:</b> ستارة تعتيم أو غطاء عيون والمكيف ثابت 22 لـ 23",
+      "<b>الكافيين:</b> قهوة اليوم قبل 12 والقهوة العربية بعد العشاء نص بن عادي ونص منزوع",
+      "<b>النوم:</b> قدّمه 20 دقيقة كل 3 أيام لين توصل 12:30",
+      "<b>هالأسبوع:</b> قِس الخصر والضغط وسوّ التحاليل"]},
+    {n:"النوم والعادة", a:"2026-11-01", b:"2026-12-31", items:[
+      "<b>النوم 12:00</b> والشروق صار متأخر فاستغله: ظلام لين 8:15",
+      "<b>مشي 10 دقايق</b> بعد الغدا وكل يوم دوام الساعة 3:45 (ذروة نبضك)",
+      "<b>حديد مرتين</b> ومشي 30 دقيقة مرة في الأسبوع (الجمعة العصر)",
+      "<b>الإبرة 5:</b> ما ترفع لـ 7.5 إلا لو ثبت الوزن 3 أسابيع",
+      "<b>آخر ديسمبر:</b> تحاليل وقياس ومقارنة بالبداية"]},
+    {n:"الدفع", a:"2027-01-01", b:"2027-02-07", items:[
+      "<b>أحلى جو في السنة:</b> مشي إلى هرولة (Couch to 5K) مرتين في الأسبوع",
+      "<b>حديد مرتين</b> وزد الأوزان شوي كل أسبوعين",
+      "<b>الهدف قبل رمضان:</b> الوزن 80 أو أقل والخصر 90 أو أقل"]},
+    {n:"رمضان والتثبيت", a:"2027-02-08", b:"2027-03-27", items:[
+      "<b>رمضان 8 فبراير لـ 9 مارس:</b> الإبرة بنفس يومها (ما تفطّر). سكوب بروتين في السحور وابدأ الفطور بالبروتين",
+      "<b>مويه 2.5 لتر</b> بين الفطور والسحور. الجفاف مع الإبرة هو اللي يتعبك",
+      "<b>حديد بعد التراويح</b> مرتين 15 دقيقة. وقيلولة 20 لـ 30 دقيقة بعد الظهر عادي",
+      "<b>العيد:</b> زيادة كيلو أو اثنين مويه طبيعية وتروح خلال أسبوع",
+      "<b>27 مارس:</b> التحاليل والقياس النهائي"]},
+  ],
+  kpis:[
+    {k:"sleep_h", l:"ساعات النوم", base:6.4, target:7.5, fmt:v=>hm(v)},
+    {k:"bed_h", l:"وقت النوم", base:25.97, target:24.25, fmt:v=>clock12(v)},
+    {k:"first_wake_h", l:"أول صحوة", base:7.73, target:8.0, fmt:v=>clock(v)},
+    {k:"rhr", l:"نبض الراحة", base:73.7, target:66, fmt:v=>nf(v,0)},
+    {k:"recovery", l:"متوسط التعافي", base:45, target:60, fmt:v=>nf(v,0)+"%"},
+    {k:"low_strain_pct", l:"أيام خاملة", base:41, target:15, fmt:v=>nf(v,0)+"%"},
+    {k:"strength_per_week", l:"حديد في الأسبوع", base:0.8, target:2, fmt:v=>nf(v,1)},
+    {k:"hot_nights_30d", l:"ليالي حارة في الشهر", base:2.9, target:0, fmt:v=>nf(v,1)},
+    {k:"hr100_min", l:"دقايق نبض فوق 100 بدون تمرين", base:121, target:45, fmt:v=>nf(v,0)},
+  ],
+  body:{w0:85.9, wT:77, c0:null, cT:88, date0:"2026-09-26"}
+};
+const clock12 = v => { if (v == null) return "—"; let h = ((v % 24) + 24) % 24; let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if (mm === 60) { hh = (hh + 1) % 24; mm = 0; } if (hh === 0) hh = 12; return hh + ":" + String(mm).padStart(2, "0"); };
+function p6prog(base, now, target){ if (now == null) return 0; const p = (now - base) / (target - base); return Math.max(0, Math.min(100, Math.round(p * 100))); }
+function renderP6(){
+  const N = D.plan6 || {};
+  const today = new Date(); const t0 = new Date(P6.start + "T00:00"), t1 = new Date(P6.end + "T00:00");
+  const total = Math.round((t1 - t0) / 864e5), el = Math.max(0, Math.min(total, Math.round((today - t0) / 864e5)));
+  $("#p6Days").innerHTML = `اليوم <span class="num">${el}</span> من <span class="num">${total}</span> · ينتهي ${dshort(P6.end)} ${P6.end.slice(0,4)}`;
+  $("#p6Fill").style.width = (100 * el / total).toFixed(1) + "%";
+  let cur = P6.phases[0];
+  $("#p6Phases").innerHTML = P6.phases.map((p, i) => {
+    const a = new Date(p.a + "T00:00"), b = new Date(p.b + "T23:59");
+    const st = today > b ? "done" : (today >= a ? "cur" : ""); if (st === "cur") cur = p;
+    return `<div class="${st}"><b>${i+1}. ${p.n}</b>${dshort(p.a)} ← ${dshort(p.b)}</div>`; }).join("");
+  if (today < t0) cur = P6.phases[0];
+  $("#p6Focus").innerHTML = `<div style="font-weight:700;margin-bottom:4px">المرحلة الحالية: ${cur.n}</div>` + cur.items.map(x => "– " + x).join("<br>");
+  $("#p6Table").innerHTML = `<tr><th>المؤشر</th><th class="n">البداية</th><th class="n">الحين</th><th class="n">الهدف</th><th style="width:120px">التقدم</th></tr>` +
+    P6.kpis.map(k => { const now = N[k.k]; const pr = p6prog(k.base, now, k.target);
+      return `<tr><td>${k.l}</td><td class="n num">${k.fmt(k.base)}</td><td class="n num" style="font-weight:700">${now == null ? "—" : k.fmt(now)}</td><td class="n num">${k.fmt(k.target)}</td><td><div class="pbar"><i style="width:${pr}%"></i></div></td></tr>`; }).join("");
+  renderBody();
+}
+function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
+function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
+function renderBody(){
+  const L = bodyLog().sort((a,b) => a.d.localeCompare(b.d));
+  const last = L[L.length - 1]; const B = P6.body;
+  const w = last && last.w != null ? last.w : B.w0; const c = last && last.c != null ? last.c : null;
+  const wd = w - B.w0;
+  $("#bodyStats").innerHTML = `<div class="row" style="gap:28px;margin:6px 0 4px">
+    <div><div class="big num">${nf(w,1)}</div><div class="muted" style="font-size:13px">الوزن · <span class="num">${wd>0?"+":""}${nf(wd,1)}</span> من البداية · باقي <span class="num">${nf(Math.max(0, w - B.wT),1)}</span> للهدف ${B.wT}</div></div>
+    <div><div class="big num">${c == null ? "—" : nf(c,1)}</div><div class="muted" style="font-size:13px">الخصر · الهدف ${B.cT}</div></div></div>`;
+  const byDate = {}; [{d:B.date0, w:B.w0}].concat(L.filter(x => x.w != null)).forEach(x => byDate[x.d] = x);
+  const pts = Object.values(byDate).sort((a, b) => a.d.localeCompare(b.d));
+  $("#bodyChartWrap").style.display = pts.length > 1 ? "block" : "none";
+  if (pts.length > 1) mk("bodyChart", {type:"line", data:{labels:pts.map(x=>x.d), datasets:[{data:pts.map(x=>x.w), borderColor:C.c1, borderWidth:2, pointRadius:4, pointBackgroundColor:C.c1, ...ringPoint, tension:.3}]},
+    options:{plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${nf(it.raw,1)} كغ`}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}}, y:{...gridY, suggestedMin:B.wT - 2}}},
+    plugins:[refLine(B.wT, "الهدف")]});
+  $("#bodyList").innerHTML = L.slice(-6).reverse().map(x => `<div class="bodyrow"><span>${dlong(x.d)}</span><span class="num">${x.w != null ? nf(x.w,1) + " كغ" : ""} ${x.c != null ? "· " + nf(x.c,1) + " سم" : ""}</span></div>`).join("");
+}
+$("#bwAdd").addEventListener("click", () => {
+  const w = parseFloat($("#bwW").value), c = parseFloat($("#bwC").value);
+  if (isNaN(w) && isNaN(c)) return;
+  const d = new Date(); const key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  const L = bodyLog().filter(x => x.d !== key); L.push({d:key, w:isNaN(w)?null:w, c:isNaN(c)?null:c}); bodySave(L);
+  $("#bwW").value = ""; $("#bwC").value = ""; renderBody();
+});
+$("#bwCopy").addEventListener("click", () => { const t = bodyLog().map(x => `${x.d}\t${x.w ?? ""}\t${x.c ?? ""}`).join("\n"); try { navigator.clipboard.writeText("date\tweight\twaist\n" + t); $("#bwCopy").textContent = "تم النسخ"; setTimeout(() => $("#bwCopy").textContent = "نسخ السجل", 1500); } catch(e) {} });
 
 function renderPlan(){
   const P = D.sleep_plan;

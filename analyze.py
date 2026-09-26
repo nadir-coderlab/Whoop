@@ -263,6 +263,61 @@ def sleep_plan(ms, stages, last=14):
 
 # ───────────────────────── workouts ─────────────────────────
 
+# ───────────────────────── 6-month plan: current values ─────────────────────────
+
+STRENGTH_SPORTS = {"Weightlifting", "Strength Trainer", "Functional Fitness", "Powerlifting", "CrossFit",
+                   "HIIT", "Calisthenics", "Bodyweight Strength", "Kettlebell"}
+
+
+def plan6_now(ms, daily, works, hr, stages, days=14):
+    """Last-N-day values for the plan KPIs (baselines and targets live in the page)."""
+    if daily.empty:
+        return None
+    end = daily["date"].max()
+    start = end - timedelta(days=days - 1)
+    d = daily[daily["date"] >= start]
+    s = ms[ms["date"] >= start] if not ms.empty else ms
+    out = {"days": days, "as_of": end.strftime("%Y-%m-%d")}
+    if len(s):
+        out["sleep_h"] = r(s["sleep_h"].mean(), 2)
+        out["bed_h"] = r(s["bed_h"].mean(), 2)
+        fw = []
+        for _, x in s.iterrows():
+            seg = stages[stages["activity_id"].astype(str) == str(x["activity_id"])] if not stages.empty else stages
+            base = x["end_local"].normalize()
+            w = seg[(seg["stage"] == "WAKE") & (seg["start_local"] >= base + timedelta(hours=5)) & (seg["minutes"] >= 3)] if len(seg) else seg
+            first = w["start_local"].min() if len(w) else x["end_local"]
+            fw.append(first.hour + first.minute / 60)
+        out["first_wake_h"] = r(sum(fw) / len(fw), 2)
+    out["rhr"] = r(d["resting_hr"].mean(), 1)
+    out["recovery"] = r(d["recovery_score"].mean(), 0)
+    out["low_strain_pct"] = r(100 * (d["day_strain"] < 5).mean(), 0)
+    if not works.empty:
+        w = works[works["start_local"] >= start]
+        out["strength_per_week"] = r(w["sport"].isin(STRENGTH_SPORTS).sum() / (days / 7), 1)
+        out["workouts_per_week"] = r(len(w) / (days / 7), 1)
+    else:
+        out["strength_per_week"] = 0.0
+        out["workouts_per_week"] = 0.0
+    tc = find_col(daily, "skin_temp")
+    if tc:
+        out["hot_nights_30d"] = r((d[tc] >= 34.5).sum() * 30 / days, 1)
+    if len(hr):
+        seg = hr[start:end + timedelta(days=1)]
+        if len(seg):
+            mask = pd.Series(True, index=seg.index)
+            for _, x in ms.iterrows():
+                mask[x["start_local"]:x["end_local"]] = False
+            if not works.empty:
+                for _, x in works.dropna(subset=["start_local", "end_local"]).iterrows():
+                    mask[x["start_local"] - timedelta(minutes=5):x["end_local"] + timedelta(minutes=20)] = False
+            awake = seg[mask]
+            step = 1 if len(seg) > 1 and (seg.index[1] - seg.index[0]) <= pd.Timedelta(minutes=1) else 5
+            ndays = max(1, awake.index.normalize().nunique())
+            out["hr100_min"] = r((awake >= 100).sum() * step / ndays, 0)
+    return out
+
+
 def workout_hrr(works, hr):
     """Heart-rate recovery: how many beats HR drops 1 and 2 minutes after the workout ends."""
     out = []
@@ -466,6 +521,7 @@ def build(csv_dir: Path):
         "weekday": weekday, "social_jetlag": sj, "ramadan": ramadan,
         "naps": naps_block(sleeps, ms, daily),
         "sleep_plan": sleep_plan(ms, stages),
+        "plan6": plan6_now(ms, daily, works, hr, stages),
         "raw": raw_tables(daily, sleeps, stages, works, hr),
     }
     return out
