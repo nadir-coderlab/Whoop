@@ -1,0 +1,7 @@
+data/
+site/data.json
+site/data.enc.json
+__pycache__/
+*.tmp
+.venv/
+.DS_Store

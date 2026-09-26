@@ -1,0 +1,4 @@
+whoop-data>=0.4
+pandas>=2.0
+numpy>=1.24
+cryptography>=42

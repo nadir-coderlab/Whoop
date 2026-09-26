@@ -1,0 +1,102 @@
+name: WHOOP daily sync
+
+on:
+  schedule:
+    - cron: "17 5 * * *"      # 8:17 AM Riyadh time, every day
+  workflow_dispatch:           # "Run workflow" button
+  push:
+    branches: [main]
+    paths-ignore: ["README.md"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: whoop-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check secrets
+        env:
+          U: ${{ secrets.WHOOP_USERNAME }}
+          P: ${{ secrets.WHOOP_PASSWORD }}
+          D: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: |
+          missing=""
+          [ -z "$U" ] && missing="$missing WHOOP_USERNAME"
+          [ -z "$P" ] && missing="$missing WHOOP_PASSWORD"
+          [ -z "$D" ] && missing="$missing DASHBOARD_PASSWORD"
+          if [ -n "$missing" ]; then echo "::error::Add these repository secrets:$missing"; exit 1; fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install packages
+        run: pip install -r requirements.txt
+
+      - name: Restore encrypted data from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/raw.vault
+          key: whoop-vault-${{ github.run_id }}
+          restore-keys: whoop-vault-
+
+      - name: Unlock data
+        env:
+          VAULT_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: python vault.py unpack
+
+      - name: Pull new WHOOP data
+        env:
+          WHOOP_USERNAME: ${{ secrets.WHOOP_USERNAME }}
+          WHOOP_PASSWORD: ${{ secrets.WHOOP_PASSWORD }}
+          WHOOP_START: ${{ vars.WHOOP_START }}
+        run: |
+          ARGS="--out data --hr6-days 0"
+          if [ -n "$WHOOP_START" ]; then ARGS="$ARGS --start $WHOOP_START"; fi
+          python whoop_export.py $ARGS
+
+      - name: Lock data
+        if: always()
+        env:
+          VAULT_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: python vault.py pack
+
+      - name: Save encrypted data to cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/raw.vault
+          key: whoop-vault-${{ github.run_id }}
+
+      - name: Build encrypted dashboard data
+        env:
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: python analyze.py --csv data/csv --out site
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
