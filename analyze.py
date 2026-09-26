@@ -76,6 +76,61 @@ def load(csv_dir: Path):
     return daily, sleeps, stages, works, hr
 
 
+def _fill(df, target, *needle_sets, scale_hrv=False):
+    """If a standard column came back empty, take it from whichever raw field WHOOP actually used."""
+    if df.empty:
+        return df
+    if target in df and df[target].notna().any():
+        return df
+    for needles in needle_sets:
+        for c in df.columns:
+            lc = c.lower()
+            if c != target and all(n in lc for n in needles) and pd.to_numeric(df[c], errors="coerce").notna().any():
+                v = pd.to_numeric(df[c], errors="coerce")
+                if scale_hrv and v.dropna().median() < 1:
+                    v = v * 1000
+                df[target] = v
+                return df
+    return df
+
+
+def fix_schema(daily, sleeps):
+    daily = _fill(daily, "recovery_score", ("recovery", "score"), ("rec.score",), ("recovery_score",))
+    daily = _fill(daily, "hrv_ms", ("hrv",), scale_hrv=True)
+    daily = _fill(daily, "resting_hr", ("resting", "heart"), ("rhr",))
+    sleeps = _fill(sleeps, "efficiency_pct", ("efficiency",))
+    sleeps = _fill(sleeps, "respiratory_rate", ("respiratory",))
+    sleeps = _fill(sleeps, "sleep_score", ("sleep", "performance"), ("raw.score",))
+    return daily, sleeps
+
+
+def schema_notice(daily, sleeps, works):
+    """Column NAMES only (no values) — shows on the Actions run page to debug field mapping."""
+    if not os.getenv("GITHUB_ACTIONS"):
+        return
+    for name, df in (("daily", daily), ("sleeps", sleeps), ("workouts", works)):
+        filled = [c for c in df.columns if df[c].notna().any()]
+        print(f"::notice title=columns {name}::{', '.join(filled)[:3500]}")
+
+
+def raw_tables(daily, sleeps, stages, works, hr):
+    """Full detail for deep analysis (kept inside the encrypted file)."""
+    def tbl(df):
+        if df.empty:
+            return None
+        d = df.copy()
+        for c in d.columns:
+            if pd.api.types.is_datetime64_any_dtype(d[c]):
+                d[c] = d[c].dt.strftime("%Y-%m-%dT%H:%M:%S")
+        return json.loads(d.to_json(orient="split", index=False))
+    out = {"daily": tbl(daily), "sleeps": tbl(sleeps), "stages": tbl(stages), "workouts": tbl(works)}
+    if len(hr):
+        h5 = hr.resample("5min").mean()
+        out["hr5"] = {"start": h5.index[0].strftime("%Y-%m-%dT%H:%M"), "step_min": 5,
+                      "v": [None if pd.isna(x) else int(round(x)) for x in h5.values]}
+    return out
+
+
 # ───────────────────────── nights ─────────────────────────
 
 def main_sleeps(sleeps):
@@ -281,6 +336,8 @@ def find_col(df, *needles):
 def build(csv_dir: Path):
     daily, sleeps, stages, works, hr = load(csv_dir)
     daily = daily.sort_values("date").drop_duplicates("date")
+    daily, sleeps = fix_schema(daily, sleeps)
+    schema_notice(daily, sleeps, works)
     ms = main_sleeps(sleeps)
     nights, curves = night_hr(ms, hr)
 
@@ -379,6 +436,7 @@ def build(csv_dir: Path):
         "workouts": workout_hrr(works, hr),
         "weekday": weekday, "social_jetlag": sj, "ramadan": ramadan,
         "naps": naps_block(sleeps, ms, daily),
+        "raw": raw_tables(daily, sleeps, stages, works, hr),
     }
     return out
 

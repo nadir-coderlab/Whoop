@@ -41,7 +41,7 @@ except ImportError:
 
 CYCLE_WINDOW_DAYS = 20      # the cycles endpoint returns max 26 records per call
 PAUSE = 0.35                # seconds between requests (be gentle with the server)
-EARLIEST_POSSIBLE = date(2015, 1, 1)
+EARLIEST_POSSIBLE = date(2018, 1, 1)
 
 
 # ───────────────────────────── helpers ─────────────────────────────
@@ -155,7 +155,7 @@ def detect_start(client, today: date) -> date:
     d = today
     first_seen = today
     empty_streak = 0
-    while d > EARLIEST_POSSIBLE and empty_streak < 9:
+    while d > EARLIEST_POSSIBLE:          # scan all the way back (gaps of any length)
         a = d - timedelta(days=CYCLE_WINDOW_DAYS - 1)
         resp = call(client.get_cycles, start_time=iso_start(a), end_time=iso_end(d), limit=CYCLE_WINDOW_DAYS + 6)
         if cycle_records(resp):
@@ -384,12 +384,13 @@ def main():
         start_file = raw / "start_date.txt"
         if args.start:
             start = date.fromisoformat(args.start)
-        elif start_file.exists():
+        elif start_file.exists() and (raw / "start_probe_v2").exists():
             start = date.fromisoformat(start_file.read_text().strip())
         else:
             start = detect_start(client, end)
         start_file.parent.mkdir(parents=True, exist_ok=True)
         start_file.write_text(str(start))
+        (raw / "start_probe_v2").write_text("1")
         log(f"Range: {start} → {end}  ({(end - start).days + 1} days)")
 
         pull_cycles(client, start, end, raw)
