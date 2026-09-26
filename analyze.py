@@ -451,6 +451,21 @@ def build(csv_dir: Path):
         "skin_temp": col("skin_temp", 2), "spo2": col("spo2", 1), "kcal": col("calories", 0),
     }
 
+    # ── HRV signal-quality flag: HRV that doubles while resting HR does not move is usually a loose strap
+    hrv_quality = None
+    h = base["hrv_ms"].dropna()
+    if len(h) >= 20:
+        low_med = h[h <= h.median()].median()
+        susp = base["hrv_ms"] > 2 * low_med
+        share = susp.sum() / len(h)
+        rhr_gap = abs(base.loc[susp, "resting_hr"].mean() - base.loc[~susp & base["hrv_ms"].notna(), "resting_hr"].mean()) if susp.any() else 99
+        if 0.08 <= share <= 0.92 and rhr_gap <= 3:
+            series["hrv_suspect"] = [bool(x) for x in susp]
+            last14 = base.tail(14)
+            hrv_quality = {"n14": int(susp.tail(14).sum()), "n_total": int(susp.sum()),
+                           "low_median": r(low_med, 0), "high_median": r(base.loc[susp, "hrv_ms"].median(), 0),
+                           "clean_recovery_14": r(last14.loc[~susp.tail(14), "recovery_score"].mean(), 0) if (~susp.tail(14)).sum() >= 5 else None}
+
     # ── KPIs: last value vs personal 30-day baseline
     last = base.iloc[-1]
     prev30 = base.iloc[-31:-1]
@@ -514,7 +529,7 @@ def build(csv_dir: Path):
     out = {
         "meta": {"generated": datetime.now().strftime("%Y-%m-%d %H:%M"),
                  "first": series["date"][0], "last": series["date"][-1], "days": len(series["date"])},
-        "kpis": kpis, "alerts": alerts, "series": series,
+        "kpis": kpis, "alerts": alerts, "series": series, "hrv_quality": hrv_quality,
         "drivers": drivers(daily, ms, nights, works),
         "curves": curves, "hypno": hypnograms(ms, stages),
         "workouts": workout_hrr(works, hr),

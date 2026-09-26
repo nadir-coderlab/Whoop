@@ -173,6 +173,7 @@ td.n,th.n{text-align:left}
     <div class="row" id="rangeBtns"></div>
     <div class="legend"><span><i style="background:var(--faint)"></i>القراءة اليومية</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span></div>
     <div class="chart lg"><canvas id="trend"></canvas></div>
+    <p class="hint" id="trendNote" style="margin:10px 0 0;display:none"></p>
   </section>
 
   <section class="card">
@@ -347,6 +348,8 @@ function renderKpis(){
     const el = document.createElement("div"); el.className = "card tile";
     el.innerHTML = `<div class="lbl">${m.lbl}</div><div class="val num">${val}<small>${m.unit}</small></div>
       <div class="delta"><b class="${cls} num">${arrow} ${dtxt}</b> عن معدل 30 يوم</div>${status}<div class="spark"><canvas></canvas></div>`;
+    if (m.k === "hrv" && D.hrv_quality && D.hrv_quality.n14 > 0)
+      el.querySelector(".delta").insertAdjacentHTML("afterend", `<div class="delta" style="color:var(--warn)">⚠ <span class="num">${D.hrv_quality.n14}</span> من آخر 14 يوم مشكوك فيها</div>`);
     box.appendChild(el);
     const cv = el.querySelector("canvas");
     new Chart(cv, {type:"line", data:{labels:k.spark.map((_,i)=>i), datasets:[{data:k.spark, borderColor:C.faint, borderWidth:1.5, pointRadius:k.spark.map((_,i)=>i===k.spark.length-1?3:0), pointBackgroundColor:C.accent, pointBorderWidth:0, tension:.3}]},
@@ -401,8 +404,13 @@ function drawTrend(){
   const all = s[m.k]; const r7 = roll(all, 7);
   const start = Math.max(0, all.length - tRange);
   const labels = s.date.slice(start), y = all.slice(start), yr = r7.slice(start);
+  const susp = (m.k === "hrv" && s.hrv_suspect) ? s.hrv_suspect.slice(start) : null;
+  const note = $("#trendNote");
+  if (susp && susp.some(Boolean) && D.hrv_quality) { note.style.display = "block"; note.innerHTML = `النقاط البرتقالية: HRV قفز لأكثر من الضعف (<span class="num">${D.hrv_quality.high_median}</span> بدل <span class="num">${D.hrv_quality.low_median}</span>) بدون أي تغير في نبض الراحة. هذا غالباً سوار مرخي مو تحسن حقيقي. الأيام المشكوك فيها: <span class="num">${D.hrv_quality.n_total}</span> من <span class="num">${s.hrv.filter(v => v != null).length}</span>.`; }
+  else note.style.display = "none";
   mk("trend", {type:"line", data:{labels, datasets:[
-      {label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, pointRadius:labels.length > 120 ? 0 : 2, pointBackgroundColor:C.faint, pointBorderWidth:0, spanGaps:true, tension:.2},
+      {label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, pointRadius: susp ? susp.map(v => v ? 3 : (labels.length > 120 ? 0 : 2)) : (labels.length > 120 ? 0 : 2),
+       pointBackgroundColor: susp ? susp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0, spanGaps:true, tension:.2},
       {label:"متوسط 7 أيام", data:yr, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35}]},
     options:{interaction:{mode:"index", intersect:false},
       plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${m.k==="sleep_h"?hm(it.raw):nf(it.raw, m.d)} ${m.k==="sleep_h"?"":m.unit}`}}},
