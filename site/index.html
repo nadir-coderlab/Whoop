@@ -45,7 +45,37 @@ section{margin-top:14px}
 .tile .delta{font-size:12.5px;color:var(--muted)}
 .tile .delta b{font-weight:700}
 .up-good{color:var(--good)} .up-bad{color:var(--bad)}
-.tile .spark{position:relative;height:34px;margin-top:8px}
+.tile{display:flex;flex-direction:column;cursor:pointer;transition:border-color .15s;overflow:hidden}
+.tile:hover{border-color:var(--faint)}
+.tile .spark{height:34px;margin-top:auto;padding-top:10px}
+.tile .spark svg{display:block;width:100%;height:34px;overflow:visible}
+.tile .more{font-size:11.5px;color:var(--faint);margin-top:6px}
+.tile .warn{font-size:12px;color:var(--warn);margin-top:2px}
+/* detail sheet */
+#sheet{position:fixed;inset:0;z-index:50;display:none}
+#sheet.on{display:block}
+#sheet .bg{position:absolute;inset:0;background:rgba(2,6,23,.72)}
+#sheet .panel{position:absolute;inset:0;margin:auto;max-width:760px;background:var(--bg);border:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:800px){#sheet .panel{inset:32px 0;border-radius:18px}}
+#sheet .head{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);z-index:2}
+#sheet .head h2{margin:0;font-size:18px;flex:1}
+#sheet .x{background:var(--card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
+#sheet .body{padding:16px}
+.hero{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.hero .v{font-size:48px;font-weight:700;line-height:1}
+.hero .u{font-size:16px;color:var(--muted);margin-inline-start:4px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.statgrid div{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+.statgrid span{display:block;font-size:12px;color:var(--muted)}
+.statgrid b{font-size:18px}
+.explain{display:grid;gap:10px;margin-top:14px}
+.explain .card{padding:14px 16px}
+.explain h3{font-size:14.5px;margin:0 0 6px;color:var(--accent)}
+.explain p,.explain li{font-size:14px;line-height:1.85;margin:0}
+.explain ul{margin:0;padding:0;list-style:none}
+.explain li{padding-inline-start:14px;position:relative}
+.explain li:before{content:"";position:absolute;right:0;top:.9em;width:7px;height:2px;background:var(--accent)}
+.you{background:#0B2A22;border:1px solid #065F46;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.9}
 .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--border);margin-top:4px}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 .alert{background:#3B1D1D;border:1px solid #7F1D1D;border-radius:var(--r);padding:14px 18px;margin-bottom:14px;line-height:1.8}
@@ -121,6 +151,7 @@ td.n,th.n{text-align:left}
   </form>
 </div>
 
+<div id="sheet"><div class="bg"></div><div class="panel"><div class="head"><h2 id="shT"></h2><button class="x" id="shX" aria-label="إغلاق">✕</button></div><div class="body" id="shB"></div></div></div>
 <div id="app"><div class="wrap">
   <header>
     <div>
@@ -134,7 +165,7 @@ td.n,th.n{text-align:left}
   <div class="grid kpis" id="kpis"></div>
 
   <section class="card" id="p6Card">
-    <div class="row"><h2 style="margin:0">خطة 6 أشهر</h2><div class="sp"></div><span class="muted" id="p6Days" style="font-size:13px"></span></div>
+    <h2 style="margin:0 0 2px">خطة 6 أشهر</h2><div class="muted" id="p6Days" style="font-size:13px"></div>
     <div class="p6bar"><i id="p6Fill"></i></div>
     <div class="p6phases" id="p6Phases"></div>
     <div class="p6focus" id="p6Focus"></div>
@@ -334,6 +365,13 @@ const KPI = [
   {k:"resp", lbl:"معدل التنفس", unit:"/min", d:1, good:-1},
 ];
 function recStatus(v){ return v >= 67 ? ["جاهز", C.good] : v >= 34 ? ["متوسط", C.warn] : ["منخفض", C.bad]; }
+function sparkSVG(vals){
+  const v = vals.map((x,i) => [i,x]).filter(p => p[1] != null); if (v.length < 2) return "";
+  const xs = vals.length - 1, lo = Math.min(...v.map(p=>p[1])), hi = Math.max(...v.map(p=>p[1])), rg = (hi - lo) || 1;
+  const pt = p => [(p[0] / xs * 100).toFixed(2), (30 - (p[1] - lo) / rg * 26 - 2).toFixed(2)];
+  const d = v.map((p,i) => (i ? "L" : "M") + pt(p).join(" ")).join(" "); const l = pt(v[v.length-1]);
+  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="${C.faint}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><path d="M${l[0]} ${l[1]}l0 0" stroke="${C.accent}" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
 function renderKpis(){
   const box = $("#kpis"); box.innerHTML = "";
   KPI.forEach(m => {
@@ -345,16 +383,133 @@ function renderKpis(){
     const dtxt = diff == null ? "" : (m.fmt ? (diff>0?"+":"−") + hm(Math.abs(diff)) : (diff>0?"+":"") + nf(diff, m.d));
     let status = "";
     if (m.k === "recovery") { const [t, c] = recStatus(k.value); status = `<div class="status"><span class="dot" style="background:${c}"></span>${t}</div>`; }
-    const el = document.createElement("div"); el.className = "card tile";
+    const warn = (m.k === "hrv" || m.k === "recovery") && D.hrv_quality && D.hrv_quality.n14 > 0 ? `<div class="warn">⚠ قراءة مشكوك فيها</div>` : "";
+    const el = document.createElement("div"); el.className = "card tile"; el.tabIndex = 0; el.setAttribute("role", "button");
     el.innerHTML = `<div class="lbl">${m.lbl}</div><div class="val num">${val}<small>${m.unit}</small></div>
-      <div class="delta"><b class="${cls} num">${arrow} ${dtxt}</b> عن معدل 30 يوم</div>${status}<div class="spark"><canvas></canvas></div>`;
-    if (m.k === "hrv" && D.hrv_quality && D.hrv_quality.n14 > 0)
-      el.querySelector(".delta").insertAdjacentHTML("afterend", `<div class="delta" style="color:var(--warn)">⚠ <span class="num">${D.hrv_quality.n14}</span> من آخر 14 يوم مشكوك فيها</div>`);
+      <div class="delta"><b class="${cls} num">${arrow} ${dtxt}</b> عن معدل 30 يوم</div>${status}${warn}<div class="spark">${sparkSVG(k.spark)}</div><div class="more">التفاصيل ←</div>`;
+    el.onclick = () => openSheet(m.k); el.onkeydown = e => { if (e.key === "Enter") openSheet(m.k); };
     box.appendChild(el);
-    const cv = el.querySelector("canvas");
-    new Chart(cv, {type:"line", data:{labels:k.spark.map((_,i)=>i), datasets:[{data:k.spark, borderColor:C.faint, borderWidth:1.5, pointRadius:k.spark.map((_,i)=>i===k.spark.length-1?3:0), pointBackgroundColor:C.accent, pointBorderWidth:0, tension:.3}]},
-      options:{responsive:true, maintainAspectRatio:false, plugins:{tooltip:{enabled:false}}, scales:{x:{display:false}, y:{display:false}}, animation:false}});
   });
+}
+
+/* ─────────── metric detail sheet ─────────── */
+const INFO = {
+  recovery: {target:60, t:"التعافي", unit:"%", d:0, sk:"recovery",
+    what:"رقم من 0 لـ 100 يقول لك WHOOP فيه كم جسمك جاهز اليوم. ينحسب مرة وحدة كل صباح بعد ما تصحى.",
+    how:"يجمع HRV ونبض الراحة ومعدل التنفس ومدة نومك ويقارنها بمعدلك أنت في آخر 30 يوم. يعني ما يقارنك بأحد غيرك.",
+    range:"أخضر 67 وفوق: جاهز لجهد عالي. أصفر 34 لـ 66: جهد متوسط. أحمر 33 وتحت: يومك راحة ونوم بدري.",
+    up:["نوم 7 ساعات وأكثر وقبل 12:30","غرفة باردة ومظلمة","يوم خفيف أمس","مويه كافية"],
+    down:["نوم أقل من 6 ساعات","ليلة حارة (حرارة الجلد فوق 34.5)","أول يومين بعد إبرة المونجارو","مرض أو جفاف","تمرين قوي أمس","كافيين أو أكل متأخر"]},
+  hrv: {target:42, t:"HRV تقلب نبضات القلب", unit:"ms", d:0, sk:"hrv",
+    what:"قلبك ما يدق مثل الساعة. بين كل نبضة والثانية فيه فرق أجزاء من الثانية يتغير مع كل نفس. HRV هو مقدار هذا التغير. تغير كبير يعني الجهاز العصبي في وضع الراحة والترميم. تغير صغير يعني الجسم في وضع الطوارئ.",
+    how:"الحساس الضوئي في السوار يقرأ النبض من جلدك ويحسب الفواصل بين النبضات (RMSSD). WHOOP يقيسه في آخر فترة نوم عميق كل ليلة عشان يطلع رقم واحد يقارن يوم بيوم. أي شي يشوش الإشارة وأنت نايم (سوار مرخي أو حركة أو عرق) يخرب الرقم.",
+    range:"ما فيه رقم صحيح للكل. رجل بعمر 38 عادةً بين 35 و60 والرياضيين 70 لـ 120. المهم رقمك مقابل معدلك أنت. انتبه لمتوسط 7 أيام مو قراءة يوم واحد.",
+    up:["نوم كافي وبدري","غرفة باردة","يوم راحة بعد تمرين","مويه كافية","نزول الوزن","لياقة أحسن مع الشهور"],
+    down:["مرض (ينزل قبل الأعراض بيوم أو يومين)","تمرين قوي أمس","نوم قصير أو متأخر","أكل أو كافيين متأخر","جفاف وحرارة","توتر","المونجارو يقلله شوي"]},
+  rhr: {target:66, t:"نبض الراحة", unit:"bpm", d:0, sk:"rhr", good:-1,
+    what:"أقل معدل لنبضك وأنت نايم. كل ما كان أقل كان قلبك يشتغل براحة أكثر.",
+    how:"WHOOP يحسبه من نبضك في فترة النوم العميق. رقم ثابت وما يتأثر كثير بتشويش السوار. عشان كذا هو أصدق مؤشر عندك الحين.",
+    range:"الطبيعي للبالغين 50 لـ 70 وأنت نايم. تحت 60 ممتاز. فوق 70 مرتفع. ارتفاع 5 نبضات فوق معدلك يومين ورا بعض علامة مرض أو جفاف أو إرهاق.",
+    up:["مرض أو التهاب","جفاف (الإسهال والحر)","ليلة حارة","أكل متأخر أو كافيين","نوم قليل","المونجارو يرفعه 2 لـ 4 نبضات"],
+    down:["مشي يومي وهرولة","نزول الوزن والخصر","نوم كافي","مويه"]},
+  sleep_h: {target:7.5, t:"ساعات النوم", unit:"", d:1, sk:"sleep_h", fmt:v => hm(v),
+    what:"الوقت اللي كنت فيه نايم فعلاً. مو الوقت في السرير. يعني من غير الصحوات والوقت اللي تاخذه لين تنام.",
+    how:"WHOOP يعرف إنك نايم من حركتك ونبضك وتنفسك ويقسم النوم لمراحل: خفيف وعميق وREM.",
+    range:"WHOOP يقدر احتياجك 8.3 ساعة (يزيد لما يكون عليك دين نوم أو إجهاد). البالغ يحتاج 7 لـ 9 ساعات.",
+    up:["نوم قبل 12:30","ظلام تام لين 8:30","غرفة باردة","كافيين قبل 12 الظهر بس","آخر وجبة 9 الليل"],
+    down:["سهر بعد 1","القهوة بعد العشاء","الضوء الصبح","منبه زوجتك وحركة البيت","حرارة الغرفة"]},
+  strain: {target:8, t:"الإجهاد", unit:"", d:1, sk:"strain",
+    what:"كم تعب قلبك خلال اليوم كله من شغل ومشي وتمرين وتوتر. مقياس من 0 لـ 21.",
+    how:"يحسبه من الوقت اللي نبضك فيه فوق مستوى الراحة. المقياس لوغاريتمي: الوصول من 10 لـ 14 أصعب بكثير من 4 لـ 8.",
+    range:"0 لـ 9 خفيف. 10 لـ 13 متوسط. 14 لـ 17 عالي. 18 لـ 21 أقصى جهد. الهدف لأغلب أيامك 8 لـ 12.",
+    up:["مشي 10 دقايق بعد الغدا","حديد مرتين في الأسبوع","مشي أو هرولة الجمعة"],
+    down:["أيام المكتب بدون حركة","السيارة من الباب للباب"]},
+  resp: {t:"معدل التنفس", unit:"/min", d:1, sk:"resp", good:-1,
+    what:"عدد الأنفاس في الدقيقة وأنت نايم. عند كل شخص رقم ثابت تقريباً ما يتغير إلا لسبب.",
+    how:"WHOOP يستنتجه من تغير نبضك مع كل نفس. عشان كذا يتأثر بنفس تشويش HRV.",
+    range:"الطبيعي 12 لـ 20. المهم إنه ثابت. ارتفاع نفس كامل فوق معدلك عدة أيام مع ارتفاع نبض الراحة علامة مبكرة لعدوى.",
+    up:["عدوى أو التهاب","حرارة","تشويش السوار"],
+    down:["نوم هادي","لياقة أحسن"]}
+};
+function statsOf(arr){
+  const v = arr.filter(x => x != null); if (!v.length) return null;
+  const mean = v.reduce((a,b)=>a+b,0) / v.length; const sd = Math.sqrt(v.reduce((a,b)=>a+(b-mean)**2,0) / v.length);
+  return {mean, sd, min:Math.min(...v), max:Math.max(...v), n:v.length};
+}
+function youText(k, st7, st30, last){
+  const f = v => INFO[k].fmt ? INFO[k].fmt(v) : nf(v, INFO[k].d);
+  const q = D.hrv_quality;
+  if (k === "hrv") return q ? `عندك ${q.n_total} يوم من ${st30 ? D.series.hrv.filter(v=>v!=null).length : 0} فيها HRV قفز لأكثر من الضعف (${q.high_median} بدل ${q.low_median}) بدون ما يتغير نبض الراحة أبداً. هذا غالباً السوار مرخي. <b>رقمك الحقيقي تقريباً ${q.low_median}.</b> الأيام البرتقالية في الرسم لا تعتمد عليها. شد السوار وارفعه إصبعين فوق الرسغ 4 ليالي وشوف هل ينزل. هدفك الواقعي 40 لـ 45 خلال 6 أشهر.` : `متوسط آخر 7 أيام ${f(st7.mean)} مقابل ${f(st30.mean)} لآخر 30 يوم.`;
+  if (k === "recovery") return `متوسط آخر 7 أيام ${f(st7.mean)}% مقابل ${f(st30.mean)}% لآخر 30 يوم.` + (q && q.n14 ? ` لكن انتبه: التعافي مبني على HRV وHRV عندك فيه قراءات مشكوك فيها في آخر أسبوعين. فالأرقام العالية الأخيرة غالباً مبالغ فيها وتعافيك الحقيقي أقرب لـ 30 لـ 40%.` : "") + ` أقوى 3 أشياء ترفعه عندك من بياناتك: النوم أكثر من 6.4 ساعة وإجهاد أمس خفيف والنوم قبل 2.`;
+  if (k === "rhr") return `متوسط آخر 7 أيام ${f(st7.mean)} ومتوسط 30 يوم ${f(st30.mean)}. بدأت الخطة من 74 وهدفك 66. هذا المؤشر هو الأصدق عندك لأن تشويش السوار ما يأثر عليه. وتوقع إنه يطلع 2 لـ 4 نبضات مع المونجارو وبعد يوم الإبرة بيومين.`;
+  if (k === "sleep_h") return `متوسط آخر 7 أيام ${f(st7.mean)} مقابل احتياج 8.3 ساعة. كل ساعة نوم زيادة عندك ترفع التعافي 8 نقاط. جسمك يصحيك 7:10 لـ 7:30 مهما سهرت. يعني الطريق الوحيد لنوم أطول إنك تنام أبدر.`;
+  if (k === "strain") return `متوسط آخر 7 أيام ${f(st7.mean)}. أغلب أيامك تحت 8 وهذا خمول. 41% من أيامك في أول 3 أشهر كانت تحت 5. الهدف 8 لـ 12 أغلب الأيام بالمشي والحديد.`;
+  if (k === "resp") return `متوسط آخر 7 أيام ${f(st7.mean)}. عندك يقفز بين 14.5 و16 بنفس أيام قفزات HRV. هذا يأكد إن السبب تشويش السوار مو تغير حقيقي في تنفسك.`;
+  return "";
+}
+let shRange = 90;
+function openSheet(k){
+  const I = INFO[k]; if (!I) return;
+  $("#shT").textContent = I.t; $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
+  try { history.pushState({sheet:k}, ""); } catch(e) {}
+  drawSheet(k);
+}
+function closeSheet(){ $("#sheet").classList.remove("on"); document.body.style.overflow = ""; }
+$("#shX").onclick = () => { closeSheet(); try { if (history.state && history.state.sheet) history.back(); } catch(e) {} };
+$("#sheet .bg").onclick = () => $("#shX").onclick();
+window.addEventListener("popstate", closeSheet);
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#shX").onclick(); });
+function drawSheet(k){
+  const I = INFO[k], s = D.series, all = s[I.sk] || [], n = all.length;
+  const f = v => v == null ? "—" : (I.fmt ? I.fmt(v) : nf(v, I.d));
+  const last = [...all].reverse().find(v => v != null);
+  const st7 = statsOf(all.slice(-7)), st30 = statsOf(all.slice(-30)), stA = statsOf(all);
+  const first30 = statsOf(all.slice(0, 30));
+  const chg = st30 && first30 ? st30.mean - first30.mean : null;
+  const unit = I.unit ? `<span class="u">${I.unit}</span>` : "";
+  const ranges = [["30 يوم",30],["90 يوم",90],["الكل",1e6]];
+  $("#shB").innerHTML = `
+    <div class="hero"><div><div class="muted" style="font-size:13px">آخر قراءة · ${dlong(s.date[n-1])}</div><div><span class="v num">${f(last)}</span>${unit}</div></div></div>
+    <div class="statgrid">
+      <div><span>متوسط 7 أيام</span><b class="num">${f(st7 && st7.mean)}</b></div>
+      <div><span>متوسط 30 يوم</span><b class="num">${f(st30 && st30.mean)}</b></div>
+      <div><span>من أول شهر</span><b class="num">${chg == null ? "—" : (chg > 0 ? "+" : "") + (I.fmt ? hm(Math.abs(chg)) : nf(chg, I.d))}</b></div>
+      <div><span>أعلى قراءة</span><b class="num">${f(stA && stA.max)}</b></div>
+      <div><span>أقل قراءة</span><b class="num">${f(stA && stA.min)}</b></div>
+      <div><span>عدد الأيام</span><b class="num">${stA ? stA.n : 0}</b></div>
+    </div>
+    <div class="row" id="shRanges">${ranges.map(([t,v]) => `<button class="btn${v===shRange?" on":""}" data-r="${v}">${t}</button>`).join("")}</div>
+    <div class="legend"><span><i style="background:var(--faint)"></i>اليومي</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span><span><i style="background:rgba(52,211,153,.25)"></i>معدلك الطبيعي (30 يوم)</span>${I.target != null ? `<span><i style="background:#64748B;height:2px"></i>الهدف</span>` : ""}${k==="hrv"||k==="recovery"?`<span><i style="background:var(--c3)"></i>مشكوك فيها</span>`:""}</div>
+    <div class="chart lg"><canvas id="shChart"></canvas></div>
+    <div class="you" style="margin-top:14px"><b>وضعك أنت:</b> ${youText(k, st7, st30, last)}</div>
+    <div class="explain">
+      <div class="card"><h3>وش هو</h3><p>${I.what}</p></div>
+      <div class="card"><h3>كيف ينقاس</h3><p>${I.how}</p></div>
+      <div class="card"><h3>كم المفروض يكون</h3><p>${I.range}</p></div>
+      <div class="grid two"><div class="card"><h3>وش يرفعه</h3><ul>${I.up.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="card"><h3>وش ينزله</h3><ul>${I.down.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>
+    </div>`;
+  $("#shRanges").querySelectorAll("button").forEach(b => b.onclick = () => { shRange = +b.dataset.r; drawSheet(k); });
+  const start = Math.max(0, n - shRange), labels = s.date.slice(start), y = all.slice(start), r7 = roll(all, 7).slice(start);
+  const susp = (k === "hrv" || k === "recovery") && s.hrv_suspect ? s.hrv_suspect.slice(start) : null;
+  const cleanSt = susp ? statsOf(all.slice(-30).map((v, i) => s.hrv_suspect[n - 30 + i] ? null : v)) : null;
+  const bst = cleanSt && cleanSt.n >= 5 ? cleanSt : st30;
+  const band = bst ? [bst.mean - bst.sd, bst.mean + bst.sd] : null;
+  const ds = [];
+  if (band) {
+    ds.push({label:"band-lo", data:labels.map(()=>band[0]), borderWidth:0, pointRadius:0, fill:false});
+    ds.push({label:"band-hi", data:labels.map(()=>band[1]), borderWidth:0, pointRadius:0, fill:"-1", backgroundColor:"rgba(52,211,153,.10)"});
+  }
+  ds.push({label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, spanGaps:true, tension:.2,
+    pointRadius: susp ? susp.map(v => v ? 3.5 : 2) : 2, pointBackgroundColor: susp ? susp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0});
+  ds.push({label:"متوسط 7 أيام", data:r7, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35});
+  mk("shChart", {type:"line", data:{labels, datasets:ds},
+    options:{interaction:{mode:"index", intersect:false},
+      plugins:{tooltip:{filter:it => !it.dataset.label.startsWith("band"), callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${f(it.raw)} ${I.fmt ? "" : I.unit}`}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
+              y:{...gridY, ticks:{...gridY.ticks, callback:v => I.fmt ? hm(v) : nf(v, I.d > 1 ? 1 : 0)}}}},
+    plugins: I.target != null ? [refLine(I.target, "الهدف")] : []});
+  $("#sheet .panel").scrollTop = 0;
 }
 
 function renderDrivers(){
