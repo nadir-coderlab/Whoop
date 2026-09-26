@@ -8,10 +8,8 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   issues: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: whoop-sync
@@ -21,9 +19,6 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 300
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,14 +85,13 @@ jobs:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python analyze.py --csv data/csv --out site
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
+      - name: Publish to GitHub Pages (gh-pages branch)
+        run: |
+          mkdir -p /tmp/pub && cp site/index.html site/data.enc.json /tmp/pub/ && touch /tmp/pub/.nojekyll
+          cd /tmp/pub
+          git init -q -b gh-pages
+          git config user.name  "whoop-bot"
+          git config user.email "whoop-bot@users.noreply.github.com"
+          git add -A && git commit -qm "dashboard $(date -u +%F)"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
+          echo "Published → https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
