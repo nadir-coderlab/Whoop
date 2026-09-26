@@ -139,6 +139,44 @@ def hypnograms(ms, stages, last=30):
     return out
 
 
+# ───────────────────────── naps ─────────────────────────
+
+def naps_block(sleeps, ms, daily, days=90):
+    """Naps = every sleep that isn't the day's main sleep (plus anything WHOOP flags as a nap)."""
+    if sleeps.empty or ms.empty:
+        return {"count": 0, "recent": []}
+    s = sleeps.dropna(subset=["start_local", "end_local"]).copy()
+    main_ids = set(ms["activity_id"].astype(str))
+    n = s[~s["activity_id"].astype(str).isin(main_ids)].copy()
+    if n.empty:
+        return {"count": 0, "recent": []}
+    n["date"] = pd.to_datetime(n["date"])
+    n["dur"] = n["asleep_min"].where(n["asleep_min"].notna(),
+                                    (n["end_local"] - n["start_local"]).dt.total_seconds() / 60)
+    n = n.sort_values("start_local")
+    last = n[n["date"] >= n["date"].max() - timedelta(days=days)]
+    out = {
+        "count": int(len(last)), "days": days,
+        "days_with": int(last["date"].nunique()),
+        "avg_min": r(last["dur"].mean(), 0),
+        "typical_start": fmt_clock(last["start_local"].apply(lambda t: t.hour + t.minute / 60).median()) if len(last) else None,
+        "recent": [{"date": d.strftime("%Y-%m-%d"), "start": a.strftime("%H:%M"), "end": b.strftime("%H:%M"), "min": r(m, 0)}
+                   for d, a, b, m in zip(n["date"].tail(12)[::-1], n["start_local"].tail(12)[::-1],
+                                         n["end_local"].tail(12)[::-1], n["dur"].tail(12)[::-1])],
+    }
+    # recovery the next morning: nap days vs no-nap days (last 180 days)
+    d = daily[["date", "recovery_score"]].dropna().copy()
+    d = d[d["date"] >= d["date"].max() - timedelta(days=180)]
+    nap_days = set(n["date"] + timedelta(days=1))
+    with_nap = d[d["date"].isin(nap_days)]["recovery_score"]
+    without = d[~d["date"].isin(nap_days)]["recovery_score"]
+    if len(with_nap) >= 5 and len(without) >= 5:
+        out["recovery_after_nap"] = r(with_nap.mean(), 0)
+        out["recovery_no_nap"] = r(without.mean(), 0)
+        out["n_after_nap"] = int(len(with_nap))
+    return out
+
+
 # ───────────────────────── workouts ─────────────────────────
 
 def workout_hrr(works, hr):
@@ -340,6 +378,7 @@ def build(csv_dir: Path):
         "curves": curves, "hypno": hypnograms(ms, stages),
         "workouts": workout_hrr(works, hr),
         "weekday": weekday, "social_jetlag": sj, "ramadan": ramadan,
+        "naps": naps_block(sleeps, ms, daily),
     }
     return out
 

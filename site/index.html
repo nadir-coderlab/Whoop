@@ -189,6 +189,12 @@ td.n,th.n{text-align:left}
   </section>
 
   <section class="card">
+    <h2>القيلولة</h2>
+    <p class="hint">WHOOP يسجل القيلولة تلقائي إذا كانت 15 دقيقة أو أكثر. هنا كل نومة غير نومة الليل الأساسية في آخر 90 يوم.</p>
+    <div id="naps"></div>
+  </section>
+
+  <section class="card">
     <h2>سرعة نزول النبض بعد التمرين (HRR)</h2>
     <p class="hint">كم نبضة ينزل قلبك في أول دقيقة بعد ما توقف التمرين. من أقوى مؤشرات اللياقة: تحت 12 منخفض وفوق 20 ممتاز. الأرقام تقريبية لأن النبض مسجل كل دقيقة.</p>
     <div class="legend"><span><i style="background:var(--faint)"></i>كل تمرين</span><span><i style="background:var(--c1)"></i>متوسط آخر 8 تمارين</span></div>
@@ -265,7 +271,7 @@ function render(data){
   D = data;
   $("#meta").innerHTML = `آخر تحديث <span class="num">${data.meta.generated}</span> · بيانات <span class="num">${nf(data.meta.days)}</span> يوم من ${dshort(data.meta.first)} ${data.meta.first.slice(0,4)}`;
   renderAlerts(); renderKpis(); renderDrivers(); setupTrend(); setupNights(); renderNadir(); renderBeds();
-  renderStages(); renderWeekday(); renderExtra(); renderWorkouts();
+  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts();
 }
 
 function renderAlerts(){
@@ -455,6 +461,20 @@ function renderExtra(){
   $("#ramadan").innerHTML = R.map(x => `<h2 style="font-size:15px;margin:0 0 6px">${x.name} مقابل 30 يوم قبله</h2>
     <table><tr><th></th><th class="n">قبل</th><th class="n">رمضان</th></tr>
     ${row("التعافي %", ...x.recovery)}${row("HRV", ...x.hrv)}${row("نبض الراحة", ...x.rhr)}${row("النوم", ...x.sleep_h, hm)}${row("وقت النوم", ...x.bed, v=>v)}</table>`).join("<div style='height:14px'></div>");
+}
+
+function renderNaps(){
+  const N = D.naps || {count:0, recent:[]};
+  if (!N.count && !(N.recent || []).length) { $("#naps").innerHTML = `<div class="empty">ما فيه قيلولة مسجلة في آخر 90 يوم</div>`; return; }
+  const eff = N.recovery_after_nap != null ? `<div class="muted" style="font-size:13px;margin-top:6px">التعافي الصباح بعد يوم فيه قيلولة <span class="num">${N.recovery_after_nap}%</span> مقابل <span class="num">${N.recovery_no_nap}%</span> بدونها (<span class="num">${N.n_after_nap}</span> يوم)</div>` : "";
+  $("#naps").innerHTML = `
+    <div class="row" style="gap:28px;margin-bottom:6px">
+      <div><div class="big num">${N.count}</div><div class="muted" style="font-size:13px">قيلولة في <span class="num">${N.days_with}</span> يوم</div></div>
+      <div><div class="big num">${nf(N.avg_min)}<span style="font-size:15px" class="muted"> د</span></div><div class="muted" style="font-size:13px">متوسط المدة</div></div>
+      <div><div class="big num">${N.typical_start || "—"}</div><div class="muted" style="font-size:13px">الوقت المعتاد</div></div>
+    </div>${eff}
+    <div style="overflow-x:auto;margin-top:14px"><table><tr><th>التاريخ</th><th class="n">من</th><th class="n">إلى</th><th class="n">المدة</th></tr>
+    ${N.recent.map(x => `<tr><td>${dlong(x.date)}</td><td class="n num">${x.start}</td><td class="n num">${x.end}</td><td class="n"><span class="num">${nf(x.min)}</span> د</td></tr>`).join("")}</table></div>`;
 }
 
 function renderWorkouts(){
