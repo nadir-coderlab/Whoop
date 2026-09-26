@@ -382,8 +382,8 @@ def main():
 
     if not args.csv_only:
         disable_logging()
-        email = os.getenv("WHOOP_USERNAME") or input("WHOOP email: ").strip()
-        pwd = os.getenv("WHOOP_PASSWORD") or getpass.getpass("WHOOP password (hidden): ")
+        email = (os.getenv("WHOOP_USERNAME") or input("WHOOP email: ")).strip()
+        pwd = (os.getenv("WHOOP_PASSWORD") or getpass.getpass("WHOOP password (hidden): ")).strip("\r\n")
         log("Signing in...")
         diagnose_login(email, pwd)
         client = WhoopClient(username=email, password=pwd)
