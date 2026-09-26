@@ -465,6 +465,12 @@ def main():
     if not a.password:
         raise SystemExit("Set DASHBOARD_PASSWORD (or --password)")
     data = build(Path(a.csv))
+    if len(a.password) < 12:
+        # The encrypted file is public: a short password can be brute-forced, so keep the
+        # minute-level detail out of it until a long passphrase is set.
+        data.pop("raw", None)
+        msg = "DASHBOARD_PASSWORD is short; detailed raw tables were NOT published. Use 12+ characters."
+        print(f"::warning title=Weak dashboard password::{msg}" if os.getenv("GITHUB_ACTIONS") else f"WARNING: {msg}")
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "data.enc.json").write_text(json.dumps(encrypt(data, a.password)))
