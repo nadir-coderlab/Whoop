@@ -337,6 +337,34 @@ def build_csvs(raw: Path, out: Path, tz):
 
 # ───────────────────────────── main ─────────────────────────────
 
+def gh_error(msg):
+    """Show the reason on the GitHub Actions run page (annotations are visible without logs)."""
+    print(f"::error title=WHOOP::{msg}" if os.getenv("GITHUB_ACTIONS") else f"ERROR: {msg}", flush=True)
+
+
+def diagnose_login(email, pwd):
+    """Try the sign-in once ourselves so a failure says WHY (never prints the password)."""
+    import requests
+    from whoop_data.endpoints import Endpoints
+    try:
+        r = requests.post(Endpoints.AUTH, json={"username": email, "password": pwd}, timeout=30)
+    except Exception as e:
+        gh_error(f"Could not reach WHOOP sign-in server: {type(e).__name__}")
+        raise SystemExit(1)
+    if r.status_code == 200:
+        return
+    body = (r.text or "")[:300].replace(email, "<email>").replace("\n", " ")
+    hint = {
+        400: "WHOOP rejected the request format (their login API may have changed)",
+        401: "Wrong WHOOP email or password (check the secrets; Apple/Google sign-in accounts need a password set first)",
+        403: "WHOOP blocked the sign-in from this server (bot protection)",
+        404: "WHOOP sign-in endpoint not found (their login API changed)",
+        429: "Too many sign-in attempts; wait and retry later",
+    }.get(r.status_code, "Unexpected response from WHOOP")
+    gh_error(f"Sign-in failed: HTTP {r.status_code}. {hint}. Response: {body}")
+    raise SystemExit(1)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Full WHOOP data export")
     ap.add_argument("--start", help="YYYY-MM-DD (default: auto-detect first day)")
@@ -357,6 +385,7 @@ def main():
         email = os.getenv("WHOOP_USERNAME") or input("WHOOP email: ").strip()
         pwd = os.getenv("WHOOP_PASSWORD") or getpass.getpass("WHOOP password (hidden): ")
         log("Signing in...")
+        diagnose_login(email, pwd)
         client = WhoopClient(username=email, password=pwd)
         log("Signed in ✓")
 
@@ -390,4 +419,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception as e:
+        gh_error(f"{type(e).__name__}: {str(e)[:400]}")
+        raise

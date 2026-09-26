@@ -77,7 +77,7 @@ jobs:
         run: python vault.py pack
 
       - name: Save encrypted data to cache
-        if: always()
+        if: always() && hashFiles('data/raw.vault') != ''
         uses: actions/cache/save@v4
         with:
           path: data/raw.vault
