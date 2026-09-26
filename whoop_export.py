@@ -35,6 +35,7 @@ from zoneinfo import ZoneInfo
 try:
     import pandas as pd
     from whoop_data import WhoopClient, get_sport_name, disable_logging
+    from whoop_auth import get_tokens, LoginError
 except ImportError:
     sys.exit("Missing packages. Run:  pip install whoop-data pandas")
 
@@ -342,60 +343,12 @@ def gh_error(msg):
     print(f"::error title=WHOOP::{msg}" if os.getenv("GITHUB_ACTIONS") else f"ERROR: {msg}", flush=True)
 
 
-COGNITO_URL = "https://api.prod.whoop.com/auth-service/v3/whoop/"
-COGNITO_UA = "aws-sdk-swift/1.5.86 ua/2.1 api/cognito_identity_provider#1.5.86 os/ios#26.3.1 lang/swift#5.10 m/D,N,Z,b"
-
-
-class LoginError(Exception):
-    pass
-
-
-def cognito_login(email, pwd):
-    """WHOOP's current sign-in: AWS Cognito behind WHOOP's own proxy (auth-service/v3).
-    Returns (access_token, refresh_token). Never logs the password."""
-    import uuid
-    import requests
-    try:
-        r = requests.post(COGNITO_URL, timeout=30, headers={
-            "content-type": "application/x-amz-json-1.1",
-            "x-amz-target": "AWSCognitoIdentityProviderService.InitiateAuth",
-            "amz-sdk-request": "attempt=1; max=1",
-            "amz-sdk-invocation-id": str(uuid.uuid4()),
-            "user-agent": COGNITO_UA,
-            "accept": "*/*",
-            "accept-language": "en-US,en;q=0.9",
-        }, json={"AuthFlow": "USER_PASSWORD_AUTH",
-                 "AuthParameters": {"USERNAME": email, "PASSWORD": pwd},
-                 "ClientId": ""})
-    except Exception as e:
-        raise LoginError(f"Could not reach WHOOP sign-in server: {type(e).__name__}")
-    try:
-        j = r.json()
-    except ValueError:
-        j = {}
-    if r.status_code == 200 and j.get("AuthenticationResult"):
-        ar = j["AuthenticationResult"]
-        return ar["AccessToken"], ar.get("RefreshToken")
-    if j.get("ChallengeName"):
-        raise LoginError(f"WHOOP asked for a verification code ({j['ChallengeName']}). "
-                         "Your account has 2-step verification, which automatic sign-in can't answer")
-    kind = (j.get("__type") or "").split("#")[-1]
-    msg = (j.get("message") or r.text or "")[:200].replace(email, "<email>")
-    hint = {
-        "NotAuthorizedException": "Wrong WHOOP email or password",
-        "UserNotFoundException": "No WHOOP account with this email",
-        "PasswordResetRequiredException": "WHOOP requires a password reset for this account",
-        "UserNotConfirmedException": "WHOOP account email not confirmed",
-        "TooManyRequestsException": "Too many sign-in attempts; wait and retry later",
-    }.get(kind, "Sign-in rejected")
-    raise LoginError(f"{hint} (HTTP {r.status_code} {kind}: {msg})")
-
-
 class CognitoWhoopClient(WhoopClient):
-    """whoop-data client that signs in through WHOOP's current Cognito flow."""
+    """whoop-data client that signs in through WHOOP's current Cognito flow (see whoop_auth.py)."""
+    token_store = Path("auth.json")
 
     def authenticate(self):
-        self.access_token, self.refresh_token = cognito_login(self.username, self.password)
+        self.access_token, self.refresh_token = get_tokens(self.username, self.password, self.token_store)
         self._get_user_id()
 
 
@@ -419,6 +372,7 @@ def main():
         email = (os.getenv("WHOOP_USERNAME") or input("WHOOP email: ")).strip()
         pwd = (os.getenv("WHOOP_PASSWORD") or getpass.getpass("WHOOP password (hidden): ")).strip("\r\n")
         log("Signing in...")
+        CognitoWhoopClient.token_store = raw / "auth.json"
         try:
             client = CognitoWhoopClient(username=email, password=pwd)
         except LoginError as e:

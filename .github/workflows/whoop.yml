@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
   pages: write
   id-token: write
 
@@ -65,6 +66,7 @@ jobs:
           WHOOP_USERNAME: ${{ secrets.WHOOP_USERNAME }}
           WHOOP_PASSWORD: ${{ secrets.WHOOP_PASSWORD }}
           WHOOP_START: ${{ vars.WHOOP_START }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           ARGS="--out data --hr6-days 0"
           if [ -n "$WHOOP_START" ]; then ARGS="$ARGS --start $WHOOP_START"; fi
