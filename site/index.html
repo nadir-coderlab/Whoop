@@ -709,7 +709,7 @@ const P6 = {
     {k:"hot_nights_30d", l:"ليالي حارة في الشهر", base:2.9, target:0, fmt:v=>nf(v,1)},
     {k:"hr100_min", l:"دقايق نبض فوق 100 بدون تمرين", base:121, target:45, fmt:v=>nf(v,0)},
   ],
-  body:{w0:85.9, wT:77, c0:null, cT:88, date0:"2026-09-26"}
+  body:{w0:85.9, wT:77, c0:99, cT:90, date0:"2026-09-26"}
 };
 const clock12 = v => { if (v == null) return "—"; let h = ((v % 24) + 24) % 24; let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if (mm === 60) { hh = (hh + 1) % 24; mm = 0; } if (hh === 0) hh = 12; return hh + ":" + String(mm).padStart(2, "0"); };
 function p6prog(base, now, target){ if (now == null) return 0; const p = (now - base) / (target - base); return Math.max(0, Math.min(100, Math.round(p * 100))); }
