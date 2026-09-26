@@ -232,6 +232,35 @@ def naps_block(sleeps, ms, daily, days=90):
     return out
 
 
+# ───────────────────────── sleep plan tracker ─────────────────────────
+
+PLAN = {"bed": 24.0, "wake": 8.5, "sleep_h": 8.0}      # lights out 00:00 · no waking before 08:30 · 8h asleep
+
+
+def sleep_plan(ms, stages, last=14):
+    if ms.empty:
+        return None
+    rows = []
+    for _, s in ms.sort_values("date").tail(last).iterrows():
+        seg = stages[stages["activity_id"].astype(str) == str(s["activity_id"])] if not stages.empty else stages
+        base = s["end_local"].normalize()
+        w = seg[(seg["stage"] == "WAKE") & (seg["start_local"] >= base + timedelta(hours=5)) &
+                (seg["minutes"] >= 3)] if len(seg) else seg
+        first = w["start_local"].min() if len(w) else s["end_local"]
+        bed_h = hour_of(s["start_local"])
+        fw_h = first.hour + first.minute / 60
+        rows.append({"date": s["date"].strftime("%Y-%m-%d"), "bed": s["start_local"].strftime("%H:%M"),
+                     "first_wake": first.strftime("%H:%M"), "up": s["end_local"].strftime("%H:%M"),
+                     "sleep_h": r(s["sleep_h"], 2),
+                     "ok_bed": bool(bed_h <= PLAN["bed"] + 0.25), "ok_wake": bool(fw_h >= PLAN["wake"] - 0.25),
+                     "ok_sleep": bool(s["sleep_h"] >= PLAN["sleep_h"] - 0.5), "bed_h": r(bed_h, 2), "fw_h": r(fw_h, 2)})
+    last7 = rows[-7:]
+    avg = lambda k: sum(x[k] for x in last7 if x[k] is not None) / max(1, len(last7))
+    return {"target": {"bed": "12:00" if PLAN["bed"] == 24.0 else fmt_clock(PLAN["bed"]), "wake": fmt_clock(PLAN["wake"]), "sleep_h": PLAN["sleep_h"]},
+            "nights": rows[::-1],
+            "avg7": {"bed": fmt_clock(avg("bed_h")), "first_wake": fmt_clock(avg("fw_h")), "sleep_h": r(avg("sleep_h"), 2)}}
+
+
 # ───────────────────────── workouts ─────────────────────────
 
 def workout_hrr(works, hr):
@@ -436,6 +465,7 @@ def build(csv_dir: Path):
         "workouts": workout_hrr(works, hr),
         "weekday": weekday, "social_jetlag": sj, "ramadan": ramadan,
         "naps": naps_block(sleeps, ms, daily),
+        "sleep_plan": sleep_plan(ms, stages),
         "raw": raw_tables(daily, sleeps, stages, works, hr),
     }
     return out

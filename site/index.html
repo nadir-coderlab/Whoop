@@ -116,6 +116,12 @@ td.n,th.n{text-align:left}
   <div id="alerts"></div>
   <div class="grid kpis" id="kpis"></div>
 
+  <section class="card" id="planCard">
+    <h2>خطة النوم</h2>
+    <p class="hint" id="planHint"></p>
+    <div id="plan"></div>
+  </section>
+
   <section class="card">
     <h2>وش يرفع تعافيك أنت بالذات</h2>
     <p class="hint">مقارنة أيامك في آخر 6 شهور: متوسط التعافي في الأيام اللي تحقق فيها الشرط مقابل الأيام اللي ما تحقق فيها. هذا ارتباط وليس سبب مؤكد لكنه مبني على بياناتك أنت مو على متوسطات عامة.</p>
@@ -271,7 +277,7 @@ function render(data){
   D = data;
   $("#meta").innerHTML = `آخر تحديث <span class="num">${data.meta.generated}</span> · بيانات <span class="num">${nf(data.meta.days)}</span> يوم من ${dshort(data.meta.first)} ${data.meta.first.slice(0,4)}`;
   renderAlerts(); renderKpis(); renderDrivers(); setupTrend(); setupNights(); renderNadir(); renderBeds();
-  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts();
+  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts(); renderPlan();
 }
 
 function renderAlerts(){
@@ -461,6 +467,25 @@ function renderExtra(){
   $("#ramadan").innerHTML = R.map(x => `<h2 style="font-size:15px;margin:0 0 6px">${x.name} مقابل 30 يوم قبله</h2>
     <table><tr><th></th><th class="n">قبل</th><th class="n">رمضان</th></tr>
     ${row("التعافي %", ...x.recovery)}${row("HRV", ...x.hrv)}${row("نبض الراحة", ...x.rhr)}${row("النوم", ...x.sleep_h, hm)}${row("وقت النوم", ...x.bed, v=>v)}</table>`).join("<div style='height:14px'></div>");
+}
+
+function renderPlan(){
+  const P = D.sleep_plan;
+  if (!P) { $("#planCard").style.display = "none"; return; }
+  const t = P.target, a = P.avg7;
+  $("#planHint").innerHTML = `الهدف: تنام <span class="num">${t.bed}</span> وما تصحى قبل <span class="num">${t.wake}</span> وتنام <span class="num">${t.sleep_h}</span> ساعات. أول صحوة = أول مرة صحيت فيها 3 دقايق أو أكثر بعد 5 الفجر.`;
+  const mark = ok => ok ? `<span style="color:var(--good)">✓</span>` : `<span style="color:var(--muted)">✗</span>`;
+  const hit = k => P.nights.slice(0,7).filter(n => n[k]).length;
+  $("#plan").innerHTML = `
+    <div class="row" style="gap:28px;margin-bottom:10px">
+      <div><div class="big num">${a.bed}</div><div class="muted" style="font-size:13px">متوسط وقت النوم (7 ليالي) · حققته <span class="num">${hit("ok_bed")}/7</span></div></div>
+      <div><div class="big num">${a.first_wake}</div><div class="muted" style="font-size:13px">متوسط أول صحوة · حققته <span class="num">${hit("ok_wake")}/7</span></div></div>
+      <div><div class="big num">${hm(a.sleep_h)}</div><div class="muted" style="font-size:13px">متوسط النوم · حققته <span class="num">${hit("ok_sleep")}/7</span></div></div>
+    </div>
+    <div style="overflow-x:auto"><table><tr><th>الليلة</th><th class="n">نمت</th><th class="n">أول صحوة</th><th class="n">قمت</th><th class="n">ساعات النوم</th></tr>
+    ${P.nights.map(n => { const d = new Date(n.date + "T00:00"); d.setDate(d.getDate()-1);
+      return `<tr><td>ليلة ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</td><td class="n"><span class="num">${n.bed}</span> ${mark(n.ok_bed)}</td><td class="n"><span class="num">${n.first_wake}</span> ${mark(n.ok_wake)}</td><td class="n num">${n.up}</td><td class="n"><span class="num">${hm(n.sleep_h)}</span> ${mark(n.ok_sleep)}</td></tr>`; }).join("")}
+    </table></div>`;
 }
 
 function renderNaps(){
