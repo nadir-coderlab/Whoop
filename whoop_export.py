@@ -342,27 +342,61 @@ def gh_error(msg):
     print(f"::error title=WHOOP::{msg}" if os.getenv("GITHUB_ACTIONS") else f"ERROR: {msg}", flush=True)
 
 
-def diagnose_login(email, pwd):
-    """Try the sign-in once ourselves so a failure says WHY (never prints the password)."""
+COGNITO_URL = "https://api.prod.whoop.com/auth-service/v3/whoop/"
+COGNITO_UA = "aws-sdk-swift/1.5.86 ua/2.1 api/cognito_identity_provider#1.5.86 os/ios#26.3.1 lang/swift#5.10 m/D,N,Z,b"
+
+
+class LoginError(Exception):
+    pass
+
+
+def cognito_login(email, pwd):
+    """WHOOP's current sign-in: AWS Cognito behind WHOOP's own proxy (auth-service/v3).
+    Returns (access_token, refresh_token). Never logs the password."""
+    import uuid
     import requests
-    from whoop_data.endpoints import Endpoints
     try:
-        r = requests.post(Endpoints.AUTH, json={"username": email, "password": pwd}, timeout=30)
+        r = requests.post(COGNITO_URL, timeout=30, headers={
+            "content-type": "application/x-amz-json-1.1",
+            "x-amz-target": "AWSCognitoIdentityProviderService.InitiateAuth",
+            "amz-sdk-request": "attempt=1; max=1",
+            "amz-sdk-invocation-id": str(uuid.uuid4()),
+            "user-agent": COGNITO_UA,
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+        }, json={"AuthFlow": "USER_PASSWORD_AUTH",
+                 "AuthParameters": {"USERNAME": email, "PASSWORD": pwd},
+                 "ClientId": ""})
     except Exception as e:
-        gh_error(f"Could not reach WHOOP sign-in server: {type(e).__name__}")
-        raise SystemExit(1)
-    if r.status_code == 200:
-        return
-    body = (r.text or "")[:300].replace(email, "<email>").replace("\n", " ")
+        raise LoginError(f"Could not reach WHOOP sign-in server: {type(e).__name__}")
+    try:
+        j = r.json()
+    except ValueError:
+        j = {}
+    if r.status_code == 200 and j.get("AuthenticationResult"):
+        ar = j["AuthenticationResult"]
+        return ar["AccessToken"], ar.get("RefreshToken")
+    if j.get("ChallengeName"):
+        raise LoginError(f"WHOOP asked for a verification code ({j['ChallengeName']}). "
+                         "Your account has 2-step verification, which automatic sign-in can't answer")
+    kind = (j.get("__type") or "").split("#")[-1]
+    msg = (j.get("message") or r.text or "")[:200].replace(email, "<email>")
     hint = {
-        400: "WHOOP rejected the request format (their login API may have changed)",
-        401: "Wrong WHOOP email or password (check the secrets; Apple/Google sign-in accounts need a password set first)",
-        403: "WHOOP blocked the sign-in from this server (bot protection)",
-        404: "WHOOP sign-in endpoint not found (their login API changed)",
-        429: "Too many sign-in attempts; wait and retry later",
-    }.get(r.status_code, "Unexpected response from WHOOP")
-    gh_error(f"Sign-in failed: HTTP {r.status_code}. {hint}. Response: {body}")
-    raise SystemExit(1)
+        "NotAuthorizedException": "Wrong WHOOP email or password",
+        "UserNotFoundException": "No WHOOP account with this email",
+        "PasswordResetRequiredException": "WHOOP requires a password reset for this account",
+        "UserNotConfirmedException": "WHOOP account email not confirmed",
+        "TooManyRequestsException": "Too many sign-in attempts; wait and retry later",
+    }.get(kind, "Sign-in rejected")
+    raise LoginError(f"{hint} (HTTP {r.status_code} {kind}: {msg})")
+
+
+class CognitoWhoopClient(WhoopClient):
+    """whoop-data client that signs in through WHOOP's current Cognito flow."""
+
+    def authenticate(self):
+        self.access_token, self.refresh_token = cognito_login(self.username, self.password)
+        self._get_user_id()
 
 
 def main():
@@ -385,8 +419,11 @@ def main():
         email = (os.getenv("WHOOP_USERNAME") or input("WHOOP email: ")).strip()
         pwd = (os.getenv("WHOOP_PASSWORD") or getpass.getpass("WHOOP password (hidden): ")).strip("\r\n")
         log("Signing in...")
-        diagnose_login(email, pwd)
-        client = WhoopClient(username=email, password=pwd)
+        try:
+            client = CognitoWhoopClient(username=email, password=pwd)
+        except LoginError as e:
+            gh_error(f"Sign-in failed: {e}")
+            raise SystemExit(1)
         log("Signed in ✓")
 
         end = date.fromisoformat(args.end) if args.end else date.today()
