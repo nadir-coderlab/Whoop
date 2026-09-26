@@ -6,7 +6,6 @@ on:
   workflow_dispatch:           # "Run workflow" button
   push:
     branches: [main]
-    paths-ignore: ["README.md"]
 
 permissions:
   contents: read
