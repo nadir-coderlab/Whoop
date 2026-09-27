@@ -3,6 +3,7 @@ name: WHOOP daily sync
 on:
   schedule:
     - cron: "17 5 * * *"      # 8:17 AM Riyadh time, every day
+    - cron: "43 7 * * *"      # 10:43 AM backup (GitHub sometimes delays or skips scheduled runs)
   workflow_dispatch:           # "Run workflow" button
   push:
     branches: [main]
