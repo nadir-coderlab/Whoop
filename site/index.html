@@ -172,7 +172,7 @@ td.n,th.n{text-align:left}
     <h3 class="p6h">المؤشرات (آخر 14 يوم مقابل البداية والهدف)</h3>
     <div style="overflow-x:auto"><table id="p6Table"></table></div>
     <h3 class="p6h">الوزن والخصر</h3>
-    <p class="hint">سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط.</p>
+    <p class="hint" id="bodyHint">سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط.</p>
     <div class="row" id="bodyForm">
       <input type="number" step="0.1" inputmode="decimal" id="bwW" placeholder="الوزن كغ" class="p6in">
       <input type="number" step="0.5" inputmode="decimal" id="bwC" placeholder="الخصر سم" class="p6in">
@@ -180,6 +180,7 @@ td.n,th.n{text-align:left}
       <button class="btn" id="bwCopy">نسخ السجل</button>
     </div>
     <div id="bodyStats"></div>
+    <div class="legend" id="bodyLegend"><span><i style="background:var(--faint)"></i>وزن اليوم</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span></div>
     <div class="chart sm" id="bodyChartWrap"><canvas id="bodyChart"></canvas></div>
     <div id="bodyList"></div>
   </section>
@@ -734,21 +735,54 @@ function renderP6(){
 function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
 function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
 function renderBody(){
-  const L = bodyLog().sort((a,b) => a.d.localeCompare(b.d));
-  const last = L[L.length - 1]; const B = P6.body;
-  const w = last && last.w != null ? last.w : B.w0; const c = last && last.c != null ? last.c : null;
+  const S = D.scale || null;                 // يوصل تلقائي من الميزان (تطبيق التلفزيون)
+  const L = bodyLog().sort((a,b) => a.d.localeCompare(b.d));   // اليدوي على هذا الجهاز
+  const B = P6.body;
+  const byDate = {};
+  byDate[B.date0] = {d:B.date0, w:B.w0, src:"start"};
+  (S ? S.days : []).forEach(x => byDate[x.d] = {d:x.d, w:x.w, fat:x.fat, time:x.time, src:"scale"});
+  L.forEach(x => { const o = byDate[x.d] || {d:x.d};
+    if (x.w != null && o.src !== "scale") { o.w = x.w; o.src = "manual"; }
+    if (x.c != null) o.c = x.c;
+    byDate[x.d] = o; });
+  const all = Object.values(byDate).sort((a, b) => a.d.localeCompare(b.d));
+  const pts = all.filter(x => x.w != null);
+  const last = pts[pts.length - 1];
+  const w = last ? last.w : B.w0;
+  const cRow = all.filter(x => x.c != null).pop(); const c = cRow ? cRow.c : null;
   const wd = w - B.w0;
+  const dayN = d => Math.round(new Date(d + "T00:00") / 864e5);
+  const win = (from, to) => { const e = dayN(last ? last.d : B.date0); return pts.filter(x => x.src !== "start" && e - dayN(x.d) >= to && e - dayN(x.d) < from); };
+  const avg7 = S && S.avg7 != null ? S.avg7 : avg(win(7, 0).map(x => x.w));
+  const prev7 = avg(win(14, 7).map(x => x.w));
+  const wk = S && S.week_change != null ? S.week_change : (avg7 != null && prev7 != null ? avg7 - prev7 : null);
+  const avg30 = S && S.avg30 != null ? S.avg30 : avg(win(30, 0).map(x => x.w));
+  const sgn = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), 1);
+  const src = last ? (last.src === "scale" ? `من الميزان${last.time ? " · " + last.time : ""}` : last.src === "manual" ? "يدوي" : "البداية") : "";
+  $("#bodyHint").textContent = S
+    ? `يوصل تلقائي من الميزان كل صباح (آخر قياس ${dlong(S.last.date)} ${S.last.time}). وتقدر تسجّل يدوي، ينحفظ على هذا الجهاز فقط.`
+    : "سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط. (لما تربط الميزان بتطبيق التلفزيون يوصل الوزن لحاله كل صباح.)";
+  const stat = (big, label) => `<div><div class="big num">${big}</div><div class="muted" style="font-size:13px">${label}</div></div>`;
   $("#bodyStats").innerHTML = `<div class="row" style="gap:28px;margin:6px 0 4px">
-    <div><div class="big num">${nf(w,1)}</div><div class="muted" style="font-size:13px">الوزن · <span class="num">${wd>0?"+":""}${nf(wd,1)}</span> من البداية · باقي <span class="num">${nf(Math.max(0, w - B.wT),1)}</span> للهدف ${B.wT}</div></div>
-    <div><div class="big num">${c == null ? "—" : nf(c,1)}</div><div class="muted" style="font-size:13px">الخصر · الهدف ${B.cT}</div></div></div>`;
-  const byDate = {}; [{d:B.date0, w:B.w0}].concat(L.filter(x => x.w != null)).forEach(x => byDate[x.d] = x);
-  const pts = Object.values(byDate).sort((a, b) => a.d.localeCompare(b.d));
+    ${stat(nf(w,1), `الوزن${src ? " (" + src + ")" : ""} · <span class="num">${wd>0?"+":""}${nf(wd,1)}</span> من البداية · باقي <span class="num">${nf(Math.max(0, w - B.wT),1)}</span> للهدف ${B.wT}`)}
+    ${stat(avg7 == null ? "—" : nf(avg7,1), `متوسط 7 أيام · <span class="num">${sgn(wk)}</span> عن الأسبوع اللي قبله`)}
+    ${stat(avg30 == null ? "—" : nf(avg30,1), "متوسط 30 يوم" + (S && S.trend_week != null ? ` · الاتجاه <span class="num">${sgn(S.trend_week)}</span> كغ بالأسبوع` : ""))}
+    ${S && S.last.fat != null ? stat(nf(S.last.fat,1) + "%", "الدهون (من الميزان)" + (S.fat7 != null ? ` · متوسط 7 أيام <span class="num">${nf(S.fat7,1)}%</span>` : "")) : ""}
+    ${stat(c == null ? "—" : nf(c,1), "الخصر · الهدف " + B.cT)}</div>`;
   $("#bodyChartWrap").style.display = pts.length > 1 ? "block" : "none";
-  if (pts.length > 1) mk("bodyChart", {type:"line", data:{labels:pts.map(x=>x.d), datasets:[{data:pts.map(x=>x.w), borderColor:C.c1, borderWidth:2, pointRadius:4, pointBackgroundColor:C.c1, ...ringPoint, tension:.3}]},
-    options:{plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${nf(it.raw,1)} كغ`}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}}, y:{...gridY, suggestedMin:B.wT - 2}}},
-    plugins:[refLine(B.wT, "الهدف")]});
-  $("#bodyList").innerHTML = L.slice(-6).reverse().map(x => `<div class="bodyrow"><span>${dlong(x.d)}</span><span class="num">${x.w != null ? nf(x.w,1) + " كغ" : ""} ${x.c != null ? "· " + nf(x.c,1) + " سم" : ""}</span></div>`).join("");
+  $("#bodyLegend").style.display = pts.length > 1 ? "" : "none";
+  if (pts.length > 1) {
+    const ma = pts.map(p => { const e = dayN(p.d); return avg(pts.filter(q => q.src !== "start" && e - dayN(q.d) >= 0 && e - dayN(q.d) < 7).map(q => q.w)); });
+    mk("bodyChart", {type:"line", data:{labels:pts.map(x=>x.d), datasets:[
+        {label:"الوزن", data:pts.map(x=>x.w), showLine:false, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:C.faint, ...ringPoint, order:2},
+        {label:"متوسط 7 أيام", data:ma, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, tension:.35, spanGaps:true, order:1}]},
+      options:{interaction:{mode:"index", intersect:false},
+        plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${nf(it.raw,1)} كغ`}}},
+        scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}}, y:{...gridY, suggestedMin:B.wT - 2}}},
+      plugins:[refLine(B.wT, "الهدف")]});
+  }
+  const tag = x => x.src === "scale" ? `<span class="muted" style="font-size:12px">ميزان${x.time ? " " + x.time : ""}</span>` : x.src === "manual" ? `<span class="muted" style="font-size:12px">يدوي</span>` : "";
+  $("#bodyList").innerHTML = all.filter(x => x.src !== "start").slice(-7).reverse().map(x => `<div class="bodyrow"><span>${dlong(x.d)} ${tag(x)}</span><span class="num">${[x.w != null ? nf(x.w,1) + " كغ" : null, x.fat != null ? nf(x.fat,1) + "%" : null, x.c != null ? nf(x.c,1) + " سم" : null].filter(Boolean).join(" · ")}</span></div>`).join("");
 }
 $("#bwAdd").addEventListener("click", () => {
   const w = parseFloat($("#bwW").value), c = parseFloat($("#bwC").value);

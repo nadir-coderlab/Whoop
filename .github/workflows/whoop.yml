@@ -5,6 +5,8 @@ on:
     - cron: "17 5 * * *"      # 8:17 AM Riyadh time, every day
     - cron: "43 7 * * *"      # 10:43 AM backup (GitHub sometimes delays or skips scheduled runs)
   workflow_dispatch:           # "Run workflow" button
+  repository_dispatch:         # a new scale reading from the TV-box app (encrypted payload)
+    types: [scale]
   push:
     branches: [main]
 
@@ -57,6 +59,20 @@ jobs:
           VAULT_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python vault.py unpack
 
+      - name: Restore scale readings (encrypted, scale-data branch)
+        run: |
+          mkdir -p data/scale-branch
+          if git fetch -q --depth 1 origin scale-data 2>/dev/null; then
+            git archive FETCH_HEAD | tar -x -C data/scale-branch
+          fi
+          ls data/scale-branch
+
+      - name: Add the new scale reading
+        env:
+          VAULT_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+          SCALE_PAYLOAD: ${{ github.event_name == 'repository_dispatch' && toJson(github.event.client_payload) || '' }}
+        run: python scale.py ingest
+
       - name: Pull new WHOOP data
         env:
           WHOOP_USERNAME: ${{ secrets.WHOOP_USERNAME }}
@@ -81,10 +97,22 @@ jobs:
           path: data/raw.vault
           key: whoop-vault-${{ github.run_id }}
 
+      - name: Save scale readings (encrypted) to the scale-data branch
+        if: always() && hashFiles('data/scale.changed') != ''
+        run: |
+          cd data/scale-branch
+          printf '%s\n' "# بيانات الميزان (مشفّرة)" "" "weights.enc.json = كل قراءات الميزان، مشفّرة AES-256-GCM بكلمة مرور الصفحة." "يحدّثها \`scale.py\` تلقائي؛ لا تعدّل هذا الفرع بيدك." > README.md
+          git init -q -b scale-data
+          git config user.name  "whoop-bot"
+          git config user.email "whoop-bot@users.noreply.github.com"
+          git add -A && git commit -qm "scale readings $(date -u +%F)"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" scale-data
+          echo "Saved $(cat ../scale.changed) new scale reading(s)"
+
       - name: Build encrypted dashboard data
         env:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
-        run: python analyze.py --csv data/csv --out site
+        run: python analyze.py --csv data/csv --scale data/scale/weights.json --out site
 
       - name: Publish to GitHub Pages (gh-pages branch)
         run: |
