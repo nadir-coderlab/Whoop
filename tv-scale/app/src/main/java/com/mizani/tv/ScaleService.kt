@@ -49,6 +49,7 @@ class ScaleService : Service() {
         const val ACTION_RESEND = "com.mizani.tv.RESEND"
         const val ACTION_TEST = "com.mizani.tv.TEST"
         const val ACTION_PROFILE = "com.mizani.tv.PROFILE"
+        private var lastUpdateCheck = 0L
         private const val CHANNEL = "scale"
         private const val NOTIF_ID = 7
 
@@ -165,6 +166,16 @@ class ScaleService : Service() {
             if (scanning && System.currentTimeMillis() - scanStartedAt > 20 * 60_000) { stopScan(); ensureScan() }
             if (!scanning && !busy) ensureScan()
             scheduleUpload(0)
+            // نشيك على تحديث للتطبيق مرة كل 12 ساعة ونكتبه على الشاشة (التثبيت بزر)
+            if (System.currentTimeMillis() - lastUpdateCheck > 12 * 3_600_000L) {
+                lastUpdateCheck = System.currentTimeMillis()
+                io.execute {
+                    try {
+                        Status.update = if (Updater.check(this@ScaleService)) "فيه تحديث ${Updater.latestName} — اضغط «حدّث التطبيق»" else "أحدث نسخة ✓"
+                        Status.changed()
+                    } catch (_: Exception) {}
+                }
+            }
             main.postDelayed(this, 5 * 60_000)
         }
     }

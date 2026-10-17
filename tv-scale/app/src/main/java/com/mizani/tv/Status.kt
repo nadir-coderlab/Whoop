@@ -12,6 +12,7 @@ object Status {
     @Volatile var state: String = "يبدأ…"
     @Volatile var detail: String = ""
     @Volatile var upload: String = ""
+    @Volatile var update: String = ""
     @Volatile var lastWeight: Store.Rec? = null
     private val lines = ArrayDeque<String>()
     private val listeners = CopyOnWriteArraySet<() -> Unit>()

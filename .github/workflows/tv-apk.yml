@@ -52,7 +52,9 @@ jobs:
           if ! gh release view tv-latest >/dev/null 2>&1; then
             gh release create tv-latest --title "ميزاني TV" --notes "$NOTES" --latest=false
           fi
-          gh release upload tv-latest MizaniTV.apk --clobber
+          # التطبيق يقرأ هذا الملف عشان يعرف إذا فيه نسخة أجدد (زر «حدّث التطبيق»)
+          printf '{"versionCode":%s,"versionName":"1.0.%s","publishedAt":"%s"}\n' "${{ github.run_number }}" "${{ github.run_number }}" "$(date -u +%FT%TZ)" > version.json
+          gh release upload tv-latest MizaniTV.apk version.json --clobber
           gh release edit tv-latest --notes "$NOTES"
           echo "APK → https://github.com/${{ github.repository }}/releases/download/tv-latest/MizaniTV.apk"
           # نحدّث صفحة GitHub Pages عشان الرابط القصير tv.apk يصير أحدث نسخة

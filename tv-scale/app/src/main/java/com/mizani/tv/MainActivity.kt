@@ -70,7 +70,7 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         Status.listen(listener)
-        server = ConfigServer(store, pin) { runOnUiThread { refresh(); ScaleService.start(this, ScaleService.ACTION_PROFILE) } }.also { it.start() }
+        server = ConfigServer(applicationContext, store, pin) { runOnUiThread { refresh(); ScaleService.start(this, ScaleService.ACTION_PROFILE) } }.also { it.start() }
         if (ScaleService.hasPermissions(this)) ScaleService.start(this)
         refresh()
     }
@@ -152,6 +152,10 @@ class MainActivity : Activity() {
         btns.addView(discover, gap)
         btns.addView(button("ارفع الحين") { ScaleService.start(this, ScaleService.ACTION_UPLOAD) }, gap)
         btns.addView(button("ارفع كل القياسات مرة ثانية") { ScaleService.start(this, ScaleService.ACTION_RESEND) }, gap)
+        btns.addView(button("حدّث التطبيق") {
+            Status.update = "يشيك على التحديث…"; refresh()
+            Thread { val m = Updater.run(this); Status.update = m; Status.changed() }.start()
+        }, gap)
         left.addView(btns)
         cols.addView(left, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.6f).apply { marginEnd = dp(20) })
 
@@ -182,7 +186,8 @@ class MainActivity : Activity() {
         } else { weight.text = "--.-"; weightSub.text = "ما فيه قياس للحين" }
         state.text = Status.state
         detail.text = Status.detail
-        upload.text = Status.upload.ifBlank { if (store.lastError.isNotBlank()) "آخر خطأ رفع: ${store.lastError}" else "" }
+        upload.text = listOf(Status.upload.ifBlank { if (store.lastError.isNotBlank()) "آخر خطأ رفع: ${store.lastError}" else "" },
+            "النسخة ${Updater.installedName(this)}" + (if (Status.update.isNotBlank()) " · ${Status.update}" else "")).filter { it.isNotBlank() }.joinToString("\n")
         val ip = localIp()
         val link = if (ip != null) "http://$ip:${ConfigServer.PORT}" else "البوكس مو متصل بالواي فاي"
         if (url.text != link) { url.text = link; qr.setImageBitmap(if (ip != null) qrBitmap(link) else null) }
