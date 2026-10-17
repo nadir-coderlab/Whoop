@@ -30,6 +30,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
 import android.os.PowerManager
+import android.net.wifi.WifiManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -86,6 +87,8 @@ class ScaleService : Service() {
     private var opSeq = 0
     private var gotReading = false
     private var wake: PowerManager.WakeLock? = null
+    private var always: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
     private var uploadBackoff = 0
     private val time = SimpleDateFormat("h:mm a", Locale("ar"))
     private val appTag by lazy { "mizani-tv/" + (try { packageManager.getPackageInfo(packageName, 0).versionName } catch (e: Exception) { "?" }) }
@@ -98,6 +101,7 @@ class ScaleService : Service() {
         adapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
         goForeground("يدوّر على الميزان")
         registerReceiver(btState, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+        stayAwake()
         Status.lastWeight = store.mine().lastOrNull()
         main.postDelayed(periodic, 60_000)
         Status.log("الخدمة اشتغلت")
@@ -105,6 +109,7 @@ class ScaleService : Service() {
 
     override fun onDestroy() {
         try { unregisterReceiver(btState) } catch (_: Exception) {}
+        try { if (always?.isHeld == true) always?.release(); if (wifiLock?.isHeld == true) wifiLock?.release() } catch (_: Exception) {}
         stopScan(); closeGatt()
         main.removeCallbacksAndMessages(null)
         super.onDestroy()
@@ -121,6 +126,21 @@ class ScaleService : Service() {
         ensureScan()
         scheduleUpload(3_000)
         return START_STICKY
+    }
+
+    /**
+     * البوكس على الكهرباء دايم: نخلي المعالج والواي فاي صاحيين طول الوقت عشان البحث
+     * عن الميزان والرفع ما يوقفون لو التلفزيون انطفى. (الاستهلاك بسيط جداً على بوكس.)
+     */
+    @Suppress("DEPRECATION")
+    private fun stayAwake() {
+        try {
+            always = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mizani:always")
+                .apply { setReferenceCounted(false); acquire() }
+            wifiLock = (applicationContext.getSystemService(WIFI_SERVICE) as WifiManager)
+                .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "mizani:wifi").apply { setReferenceCounted(false); acquire() }
+            Status.log("البوكس ما بينام (المعالج والواي فاي صاحيين)")
+        } catch (e: Exception) { Status.log("ما قدرت أمنع النوم: ${e.javaClass.simpleName}") }
     }
 
     // ───────────── الإشعار (مطلوب للخدمات اللي تشتغل بالخلفية) ─────────────
