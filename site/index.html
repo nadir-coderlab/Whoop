@@ -125,6 +125,13 @@ td.n,th.n{text-align:left}
 .p6in{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;width:120px;direction:ltr;text-align:center}
 .bodyrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--grid)}
 .bodyrow span{color:var(--muted)}
+details.bodyday>summary{list-style:none;cursor:pointer}
+details.bodyday>summary::-webkit-details-marker{display:none}
+details.bodyday .more{color:var(--accent);font-size:12px;margin-inline-start:6px}
+details.bodyday[open] .more{opacity:.6}
+.bodyall{padding:2px 12px 8px;font-size:12.5px}
+.bodyall div{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed var(--grid);color:var(--muted)}
+.bodyall b{color:var(--text);font-weight:600}
 /* lock screen */
 #lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 #lock .box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:380px;text-align:center}
@@ -734,13 +741,14 @@ function renderP6(){
 }
 function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
 function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
+let bodyShowAll = false;
 function renderBody(){
   const S = D.scale || null;                 // يوصل تلقائي من الميزان (تطبيق التلفزيون)
   const L = bodyLog().sort((a,b) => a.d.localeCompare(b.d));   // اليدوي على هذا الجهاز
   const B = P6.body;
   const byDate = {};
   byDate[B.date0] = {d:B.date0, w:B.w0, src:"start"};
-  (S ? S.days : []).forEach(x => byDate[x.d] = {d:x.d, w:x.w, fat:x.fat, time:x.time, src:"scale"});
+  (S ? S.days : []).forEach(x => byDate[x.d] = {d:x.d, w:x.w, fat:x.fat, time:x.time, src:"scale", each:x.all || []});
   L.forEach(x => { const o = byDate[x.d] || {d:x.d};
     if (x.w != null && o.src !== "scale") { o.w = x.w; o.src = "manual"; }
     if (x.c != null) o.c = x.c;
@@ -782,7 +790,19 @@ function renderBody(){
       plugins:[refLine(B.wT, "الهدف")]});
   }
   const tag = x => x.src === "scale" ? `<span class="muted" style="font-size:12px">ميزان${x.time ? " " + x.time : ""}</span>` : x.src === "manual" ? `<span class="muted" style="font-size:12px">يدوي</span>` : "";
-  $("#bodyList").innerHTML = all.filter(x => x.src !== "start").slice(-7).reverse().map(x => `<div class="bodyrow"><span>${dlong(x.d)} ${tag(x)}</span><span class="num">${[x.w != null ? nf(x.w,1) + " كغ" : null, x.fat != null ? nf(x.fat,1) + "%" : null, x.c != null ? nf(x.c,1) + " سم" : null].filter(Boolean).join(" · ")}</span></div>`).join("");
+  const rows = all.filter(x => x.src !== "start").reverse();
+  const shown = bodyShowAll ? rows : rows.slice(0, 7);
+  const n1 = (v, unit) => `<span class="num">${v}</span>${unit ? " " + unit : ""}`;
+  const vals = x => [x.w != null ? n1(nf(x.w,1), "كغ") : null, x.fat != null ? n1(nf(x.fat,1) + "%") : null, x.c != null ? n1(nf(x.c,1), "سم") : null].filter(Boolean).join(" · ");
+  $("#bodyList").innerHTML = shown.map(x => {
+    const line = `<span>${dlong(x.d)} ${tag(x)}</span><span>${vals(x)}</span>`;
+    const each = x.each || [];
+    if (each.length < 2) return `<div class="bodyrow">${line}</div>`;
+    // أكثر من قياس باليوم: تضغط وتطلع كلها بأوقاتها
+    return `<details class="bodyday"><summary class="bodyrow"><span>${dlong(x.d)} ${tag(x)} <span class="more">· ${each.length} قياسات ▾</span></span><span>${vals(x)}</span></summary>
+      <div class="bodyall">${each.map(e => `<div><span><span class="num">${e.time}</span>${e.used ? " · المعتمد لليوم" : ""}</span><span><b>${n1(nf(e.w,1), "كغ")}</b>${e.fat != null ? " · " + n1(nf(e.fat,1) + "%") : ""}${e.imp != null ? " · " + n1(nf(e.imp,0), "Ω") : ""}</span></div>`).join("")}</div></details>`;
+  }).join("") + (rows.length > 7 ? `<button class="btn" id="bodyMore" style="margin-top:10px">${bodyShowAll ? "أقل" : "كل الأيام (" + rows.length + ")"}</button>` : "");
+  const mb = $("#bodyMore"); if (mb) mb.onclick = () => { bodyShowAll = !bodyShowAll; renderBody(); };
 }
 $("#bwAdd").addEventListener("click", () => {
   const w = parseFloat($("#bwW").value), c = parseFloat($("#bwC").value);

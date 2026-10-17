@@ -73,10 +73,13 @@ class Store(ctx: Context) {
         return abs(w - last[last.size / 2]) <= 5.0
     }
 
-    /** يضيف القراءة لو جديدة (نفس الوقت أو خلال دقيقة بنفس الوزن = تكرار) */
+    /**
+     * يضيف القراءة لو جديدة. التكرار = نفس الثانية بالضبط من ساعة الميزان (مثل قياس
+     * يرجع مرة ثانية من ذاكرة الميزان). قياسين بينهم دقيقة يتحفظون الاثنين.
+     */
     @Synchronized fun add(r: Huawei.Reading, dev: String, other: Boolean): Rec? {
         val list = all()
-        if (list.any { it.t == r.timeMs || (abs(it.t - r.timeMs) < 60_000 && abs(it.w - r.weightKg) < 0.05) }) return null
+        if (list.any { it.t == r.timeMs }) return null
         val rec = Rec(r.timeMs, r.weightKg, r.fatPct, r.impedance, dev, sent = false, other = other)
         list += rec; save(list)
         return rec

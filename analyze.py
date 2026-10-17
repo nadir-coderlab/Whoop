@@ -440,7 +440,10 @@ def scale_block(path, keep_days=400):
     for d, g in df.groupby("date"):
         m = g[g["morning"]]
         row = (m if len(m) else g).iloc[0]
-        picks.append({"date": d, "w": row["w"], "fat": row["fat"], "imp": row["imp"], "ts": row["ts"], "n": int(len(g))})
+        # كل قياسات اليوم (حتى لو بينها دقيقة) عشان تنعرض لما تضغط على اليوم
+        each = [{"time": x["ts"].strftime("%H:%M"), "w": r(x["w"], 2), "fat": r(x["fat"], 1), "imp": r(x["imp"], 0),
+                 "used": bool(x["ts"] == row["ts"] and x["w"] == row["w"])} for _, x in g.iterrows()]
+        picks.append({"date": d, "w": row["w"], "fat": row["fat"], "imp": row["imp"], "ts": row["ts"], "n": int(len(g)), "all": each})
     days = pd.DataFrame(picks).sort_values("date").reset_index(drop=True)
     last = days.iloc[-1]
     end = last["date"]
@@ -469,7 +472,7 @@ def scale_block(path, keep_days=400):
         "first": {"date": first["date"].strftime("%Y-%m-%d"), "w": r(first["w"], 2)},
         "readings": int(len(df)),
         "days": [{"d": x["date"].strftime("%Y-%m-%d"), "w": r(x["w"], 2), "fat": r(x["fat"], 1),
-                  "time": x["ts"].strftime("%H:%M"), "n": int(x["n"])} for _, x in keep.iterrows()],
+                  "time": x["ts"].strftime("%H:%M"), "n": int(x["n"]), "all": x["all"]} for _, x in keep.iterrows()],
     }
 
 
