@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
  * لأن كتابة توكن طويل بريموت التلفزيون عذاب. تشتغل بس والتطبيق مفتوح على الشاشة،
  * والحفظ يحتاج الرقم السري المكتوب على الشاشة.
  */
-class ConfigServer(private val store: Store, private val pin: String, private val onChange: () -> Unit) {
+class ConfigServer(private val appCtx: android.content.Context, private val store: Store, private val pin: String, private val onChange: () -> Unit) {
     companion object { const val PORT = 8765 }
     private var server: ServerSocket? = null
     private val pool = Executors.newFixedThreadPool(2)
@@ -43,6 +43,7 @@ class ConfigServer(private val store: Store, private val pin: String, private va
             val html = when {
                 method == "POST" && path.startsWith("/save") -> save(form)
                 method == "POST" && path.startsWith("/test") -> test(form)
+                method == "POST" && path.startsWith("/update") -> if (form["pin"]?.trim() != pin) page("الرقم السري غلط", false) else page(Updater.run(appCtx), true)
                 else -> page(null)
             }
             val bytes = html.toByteArray(Charsets.UTF_8)
@@ -141,6 +142,8 @@ button.sec{background:#182a26;color:#e6efec;border:1px solid #23352f}.msg{paddin
 <label><input type=checkbox name=forget value=1 style="width:auto"> انسَ الميزان المحفوظ ودوّر من جديد</label>
 <button>احفظ</button></form>
 <form method=post action=/test><label>الرقم السري</label><input name=pin inputmode=numeric required autocomplete=off><button class=sec>إرسال تجربة لموقعك</button></form>
+<form method=post action=/update><h2>تحديث التطبيق</h2><p class=muted>النسخة الحالية ${esc(Updater.installedName(appCtx))}. ينزّل أحدث نسخة، وبعدها تضغط «تثبيت» بالريموت على التلفزيون.</p>
+<label>الرقم السري</label><input name=pin inputmode=numeric required autocomplete=off><button class=sec>حدّث التطبيق على التلفزيون</button></form>
 </main></body></html>"""
     }
 }
