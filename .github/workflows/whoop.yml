@@ -117,6 +117,8 @@ jobs:
       - name: Publish to GitHub Pages (gh-pages branch)
         run: |
           mkdir -p /tmp/pub && cp site/index.html site/data.enc.json /tmp/pub/ && touch /tmp/pub/.nojekyll
+          # رابط قصير لتطبيق التلفزيون (Downloader): …github.io/Whoop/tv.apk
+          curl -fsSL -o /tmp/pub/tv.apk "https://github.com/${{ github.repository }}/releases/download/tv-latest/MizaniTV.apk" || rm -f /tmp/pub/tv.apk
           cd /tmp/pub
           git init -q -b gh-pages
           git config user.name  "whoop-bot"
