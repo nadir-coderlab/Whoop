@@ -266,7 +266,7 @@ class ScaleService : Service() {
         try { if (wake?.isHeld == true) wake?.release() } catch (_: Exception) {}
         busy = false
         // الميزان يظل صاحي شوي بعد القياس؛ ننتظر عشان ما نعيد الاتصال على نفس الوقفة
-        cooldownUntil = System.currentTimeMillis() + if (measured) 45_000 else 8_000
+        cooldownUntil = System.currentTimeMillis() + if (measured) 12_000 else 8_000
         main.postDelayed({ ensureScan() }, 300)
         Status.lastWeight = store.mine().lastOrNull()
         Status.changed()
