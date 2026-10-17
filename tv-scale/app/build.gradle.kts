@@ -15,22 +15,22 @@ android {
         versionName = (project.findProperty("versionName") as String?) ?: "1.0.0"
     }
 
-    // مفتاح توقيع ثابت داخل المستودع عشان كل تحديث ينزل فوق القديم بدون حذف.
-    // التطبيق للاستخدام الشخصي ويتثبّت يدوي؛ ما فيه أي سر داخله.
+    // مفتاح التوقيع ما ينحفظ في المستودع: workflow البناء يفكّه من GitHub Actions secrets
+    // ويمرّر مكانه وكلمات مروره بمتغيرات بيئة. بدونها تطلع نسخة release بدون توقيع.
+    val keystore = System.getenv("MIZANI_KEYSTORE")?.let { file(it) }?.takeIf { it.isFile }
     signingConfigs {
-        create("release") {
-            storeFile = file("../keystore/mizani-tv.jks")
-            storePassword = "mizani-tv"
-            keyAlias = "mizani"
-            keyPassword = "mizani-tv"
+        if (keystore != null) create("release") {
+            storeFile = keystore
+            storePassword = System.getenv("MIZANI_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("MIZANI_KEY_ALIAS") ?: "mizani"
+            keyPassword = System.getenv("MIZANI_KEY_PASSWORD")
         }
     }
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
         }
-        debug { signingConfig = signingConfigs.getByName("release") }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

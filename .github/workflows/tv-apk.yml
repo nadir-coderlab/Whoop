@@ -36,13 +36,36 @@ jobs:
           java-version: "17"
           cache: gradle
 
+      # مفتاح التوقيع محفوظ في أسرار المستودع (base64)، ينفك في مجلد مؤقت خارج المستودع
+      - name: Restore signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.MIZANI_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "::error::السر MIZANI_KEYSTORE_B64 ناقص"; exit 1; fi
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/mizani-tv.jks"
+          echo "MIZANI_KEYSTORE=$RUNNER_TEMP/mizani-tv.jks" >> "$GITHUB_ENV"
+
       - name: Test and build
+        env:
+          MIZANI_KEYSTORE_PASSWORD: ${{ secrets.MIZANI_KEYSTORE_PASSWORD }}
+          MIZANI_KEY_PASSWORD: ${{ secrets.MIZANI_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleRelease \
             -PversionCode=${{ github.run_number }} -PversionName=1.0.${{ github.run_number }}
           cp app/build/outputs/apk/release/app-release.apk MizaniTV.apk
           sha256sum MizaniTV.apk
+
+      # نتأكد إن الـ APK موقّع بمفتاحنا قبل النشر؛ لو انحط مفتاح ثاني بالغلط ما ننشر شي
+      # البوكس ما بيقبله كتحديث.
+      - name: Verify signing certificate
+        env:
+          EXPECTED_CERT_SHA256: 036183a3213716b7bf6e2f94f619a3fe92f16ca57f2793bafe76685cba895439
+        run: |
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner"
+          "$APKSIGNER" verify --print-certs MizaniTV.apk | tee certs.txt
+          grep -qi "certificate SHA-256 digest: $EXPECTED_CERT_SHA256" certs.txt \
+            || { echo "::error::شهادة التوقيع غير المتوقعة"; exit 1; }
 
       - name: Publish (release tv-latest)
         env:

@@ -5,3 +5,7 @@ __pycache__/
 *.tmp
 .venv/
 .DS_Store
+
+# مفاتيح التوقيع ما تنرفع (مكانها GitHub Actions secrets)
+*.jks
+*.keystore
