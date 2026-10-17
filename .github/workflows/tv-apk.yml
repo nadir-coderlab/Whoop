@@ -1,0 +1,59 @@
+# يبني تطبيق «ميزاني TV» (بوكس التلفزيون يسمع للميزان ويرفع الوزن) وينشره كملف APK ثابت الرابط:
+#   https://github.com/nadir-coderlab/Whoop/releases/download/tv-latest/MizaniTV.apk
+# ورابط أقصر للتلفزيون (يتحدّث مع كل نشر للصفحة):
+#   https://nadir-coderlab.github.io/Whoop/tv.apk
+name: Build TV app (APK)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tv-scale/**"
+      - ".github/workflows/tv-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: tv-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: tv-scale
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Test and build
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleRelease \
+            -PversionCode=${{ github.run_number }} -PversionName=1.0.${{ github.run_number }}
+          cp app/build/outputs/apk/release/app-release.apk MizaniTV.apk
+          sha256sum MizaniTV.apk
+
+      - name: Publish (release tv-latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES="ميزاني TV — الإصدار 1.0.${{ github.run_number }} ($(date -u +%F)). نزّله على البوكس من Downloader بالرابط: https://nadir-coderlab.github.io/Whoop/tv.apk"
+          if ! gh release view tv-latest >/dev/null 2>&1; then
+            gh release create tv-latest --title "ميزاني TV" --notes "$NOTES" --latest=false
+          fi
+          gh release upload tv-latest MizaniTV.apk --clobber
+          gh release edit tv-latest --notes "$NOTES"
+          echo "APK → https://github.com/${{ github.repository }}/releases/download/tv-latest/MizaniTV.apk"
+          # نحدّث صفحة GitHub Pages عشان الرابط القصير tv.apk يصير أحدث نسخة
+          gh workflow run whoop.yml --ref main || true

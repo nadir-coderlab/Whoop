@@ -409,6 +409,70 @@ def drivers(daily, ms, nights, works, window=180):
 
 # ───────────────────────── other blocks ─────────────────────────
 
+def scale_block(path, keep_days=400):
+    """Body-scale readings (from scale.py) → one morning weight per day + averages.
+
+    The morning reading is the first one between 04:00 and 12:00 Riyadh time (if there is
+    none that day, the day's first reading). Averages are over days that have a reading.
+    """
+    if not path:
+        return None
+    p = Path(path)
+    if not p.exists():
+        return None
+    try:
+        rows = json.loads(p.read_text())
+    except Exception:
+        return None
+    rows = [x for x in rows if isinstance(x, dict) and x.get("w") is not None and x.get("t") is not None]
+    if not rows:
+        return None
+    df = pd.DataFrame(rows)
+    df["ts"] = pd.to_datetime(df["t"], unit="ms", utc=True).dt.tz_convert("Asia/Riyadh").dt.tz_localize(None)
+    df = df.sort_values("ts")
+    df["date"] = df["ts"].dt.normalize()
+    df["hour"] = df["ts"].dt.hour + df["ts"].dt.minute / 60
+    df["morning"] = (df["hour"] >= 4) & (df["hour"] < 12)
+    for c in ("fat", "imp"):
+        if c not in df:
+            df[c] = np.nan
+    picks = []
+    for d, g in df.groupby("date"):
+        m = g[g["morning"]]
+        row = (m if len(m) else g).iloc[0]
+        picks.append({"date": d, "w": row["w"], "fat": row["fat"], "imp": row["imp"], "ts": row["ts"], "n": int(len(g))})
+    days = pd.DataFrame(picks).sort_values("date").reset_index(drop=True)
+    last = days.iloc[-1]
+    end = last["date"]
+
+    def window(a, b):          # days in (end - a, end - b]
+        return days[(days["date"] > end - timedelta(days=a)) & (days["date"] <= end - timedelta(days=b))]
+    w7, w30, prev7 = window(7, 0), window(30, 0), window(14, 7)
+    trend = None
+    w28 = window(28, 0)
+    if len(w28) >= 7:
+        x = (w28["date"] - w28["date"].min()).dt.days.to_numpy(dtype=float)
+        if np.ptp(x) > 0:
+            trend = r(np.polyfit(x, w28["w"].to_numpy(dtype=float), 1)[0] * 7, 2)   # kg per week
+    first = days.iloc[0]
+    keep = days[days["date"] > end - timedelta(days=keep_days)]
+    return {
+        "last": {"date": end.strftime("%Y-%m-%d"), "time": last["ts"].strftime("%H:%M"), "w": r(last["w"], 2),
+                 "fat": r(last["fat"], 1), "imp": r(last["imp"], 0)},
+        "avg7": r(w7["w"].mean(), 2), "n7": int(len(w7)),
+        "avg30": r(w30["w"].mean(), 2), "n30": int(len(w30)),
+        "prev7": r(prev7["w"].mean(), 2) if len(prev7) else None,
+        "week_change": r(w7["w"].mean() - prev7["w"].mean(), 2) if len(prev7) and len(w7) else None,
+        "trend_week": trend,
+        "min30": r(w30["w"].min(), 2), "max30": r(w30["w"].max(), 2),
+        "fat7": r(w7["fat"].mean(), 1) if w7["fat"].notna().any() else None,
+        "first": {"date": first["date"].strftime("%Y-%m-%d"), "w": r(first["w"], 2)},
+        "readings": int(len(df)),
+        "days": [{"d": x["date"].strftime("%Y-%m-%d"), "w": r(x["w"], 2), "fat": r(x["fat"], 1),
+                  "time": x["ts"].strftime("%H:%M"), "n": int(x["n"])} for _, x in keep.iterrows()],
+    }
+
+
 def find_col(df, *needles):
     for c in df.columns:
         lc = c.lower()
@@ -417,7 +481,7 @@ def find_col(df, *needles):
     return None
 
 
-def build(csv_dir: Path):
+def build(csv_dir: Path, scale_path=None):
     daily, sleeps, stages, works, hr = load(csv_dir)
     daily = daily.sort_values("date").drop_duplicates("date")
     daily, sleeps = fix_schema(daily, sleeps)
@@ -538,6 +602,7 @@ def build(csv_dir: Path):
         "sleep_plan": sleep_plan(ms, stages),
         "plan6": plan6_now(ms, daily, works, hr, stages),
         "raw": raw_tables(daily, sleeps, stages, works, hr),
+        "scale": scale_block(scale_path),
     }
     return out
 
@@ -560,12 +625,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", default="whoop_export/csv")
     ap.add_argument("--out", default="site")
+    ap.add_argument("--scale", default=None, help="data/scale/weights.json from scale.py (optional)")
     ap.add_argument("--password", default=os.getenv("DASHBOARD_PASSWORD"))
     ap.add_argument("--plain", action="store_true", help="also write unencrypted data.json (local testing only)")
     a = ap.parse_args()
     if not a.password:
         raise SystemExit("Set DASHBOARD_PASSWORD (or --password)")
-    data = build(Path(a.csv))
+    data = build(Path(a.csv), a.scale)
     if len(a.password) < 12:
         # The encrypted file is public: a short password can be brute-forced, so keep the
         # minute-level detail out of it until a long passphrase is set.
@@ -578,7 +644,8 @@ def main():
     if a.plain:
         (out / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
     print(f"✓ {data['meta']['days']} days  {data['meta']['first']} → {data['meta']['last']}  "
-          f"| drivers {len(data['drivers'])} | alerts {len(data['alerts'])} | {out/'data.enc.json'}")
+          f"| drivers {len(data['drivers'])} | alerts {len(data['alerts'])} "
+          f"| scale {data['scale']['readings'] if data.get('scale') else 0} readings | {out/'data.enc.json'}")
 
 
 if __name__ == "__main__":
