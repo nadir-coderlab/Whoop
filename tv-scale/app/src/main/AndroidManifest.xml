@@ -53,6 +53,24 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
 
+        <!-- شاشة سودا: البوكس يظل صاحي ويسمع للميزان والتلفزيون كأنه طافي -->
+        <service
+            android:name=".BlackDream"
+            android:exported="true"
+            android:label="ميزاني — شاشة سودا"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".BlackActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+
         <receiver android:name=".InstallReceiver" android:exported="false" />
 
         <receiver android:name=".BootReceiver" android:exported="true">

@@ -152,11 +152,15 @@ class MainActivity : Activity() {
         btns.addView(discover, gap)
         btns.addView(button("ارفع الحين") { ScaleService.start(this, ScaleService.ACTION_UPLOAD) }, gap)
         btns.addView(button("ارفع كل القياسات مرة ثانية") { ScaleService.start(this, ScaleService.ACTION_RESEND) }, gap)
-        btns.addView(button("حدّث التطبيق") {
+        left.addView(btns)
+        // سطر ثاني: الأزرار ما تتسع كلها في سطر واحد على شاشة التلفزيون
+        val btns2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, dp(10), 0, 0) }
+        btns2.addView(button("شاشة سودا") { startActivity(Intent(this, BlackActivity::class.java)) }, gap)
+        btns2.addView(button("حدّث التطبيق") {
             Status.update = "يشيك على التحديث…"; refresh()
             Thread { val m = Updater.run(this); Status.update = m; Status.changed() }.start()
         }, gap)
-        left.addView(btns)
+        left.addView(btns2)
         cols.addView(left, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.6f).apply { marginEnd = dp(20) })
 
         val right = panel().apply { gravity = Gravity.CENTER_HORIZONTAL }
