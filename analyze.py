@@ -394,6 +394,8 @@ def drivers(daily, ms, nights, works, window=180):
             tt = fmt_clock(t)
         elif key in ("sleep_h",):
             tt = f"{t:.1f}"
+        elif key == "efficiency_pct" and t <= 1.5:
+            tt = f"{t * 100:.0f}"          # stored as a fraction
         else:
             tt = f"{t:.0f}"
         better_hi = diff > 0

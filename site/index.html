@@ -2,8 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0F172A">
 <title>لوحتي الصحية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,122 +17,99 @@
   --accent:#34D399; --gold:#FCD34D;
   --c1:#059669; --c2:#3B82F6; --c3:#D97706; --c4:#DB2777;
   --good:#22C55E; --warn:#EAB308; --bad:#EF4444;
-  --r:14px;
+  --r:16px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .num{font-family:Inter,Cairo,sans-serif;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
-a{color:var(--accent)}
-.wrap{max-width:1200px;margin:0 auto;padding:24px 16px 64px}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-h1{font-size:26px;font-weight:800;margin:0}
-.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 56px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+h1{font-size:22px;font-weight:800;margin:0}
+.sub{color:var(--muted);font-size:12.5px;margin-top:2px}
 .btn{background:transparent;border:1px solid var(--border);color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
 .btn:hover{color:var(--text);border-color:var(--faint)}
 .btn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
-.grid{display:grid;gap:14px}
-.kpis{grid-template-columns:repeat(6,1fr)}
-@media(max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.two{grid-template-columns:1fr 1fr}
-@media(max-width:900px){.two{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;min-width:0}
-.card h2{font-size:17px;font-weight:700;margin:0 0 4px}
-.card .hint{color:var(--muted);font-size:12.5px;margin:0 0 14px;line-height:1.7}
-section{margin-top:14px}
-.tile .lbl{color:var(--muted);font-size:13px}
-.tile .val{font-size:30px;font-weight:700;margin:4px 0 2px;line-height:1.1}
-.tile .val small{font-size:14px;color:var(--muted);font-weight:600;margin-inline-start:3px}
-.tile .delta{font-size:12.5px;color:var(--muted)}
-.tile .delta b{font-weight:700}
+.muted{color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:16px 0}
+
+/* alert strip */
+.alert{background:#3B1D1D;border:1px solid #7F1D1D;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.8}
+.alert b{color:#FCA5A5}
+
+/* dashboard grid */
+.sec{font-size:13px;color:var(--faint);font-weight:700;margin:18px 2px 8px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:820px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 14px 12px;cursor:pointer;display:flex;flex-direction:column;min-width:0;transition:border-color .15s,transform .15s;-webkit-tap-highlight-color:transparent}
+.c:hover{border-color:var(--faint)}
+.c:active{transform:scale(.985)}
+.c .top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.c .lbl{color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c .chev{color:var(--faint);font-size:14px}
+.c .val{font-size:30px;font-weight:700;line-height:1.1;margin:8px 0 2px}
+.c .val small{font-size:13px;color:var(--muted);font-weight:600;margin-inline-start:3px}
+.c .dl{font-size:12px;color:var(--muted);min-height:18px}
+.c .dl b{font-weight:700}
+.c .spark{margin-top:auto;padding-top:10px}
+.c .spark svg{display:block;width:100%;height:30px;overflow:visible}
+.c .flag{font-size:11.5px;color:var(--warn)}
+.c.wide{grid-column:span 2}
+.c.wide .val{font-size:22px}
+.c .pbar{margin-top:10px}
 .up-good{color:var(--good)} .up-bad{color:var(--bad)}
-.tile{display:flex;flex-direction:column;cursor:pointer;transition:border-color .15s;overflow:hidden}
-.tile:hover{border-color:var(--faint)}
-.tile .spark{height:34px;margin-top:auto;padding-top:10px}
-.tile .spark svg{display:block;width:100%;height:34px;overflow:visible}
-.tile .more{font-size:11.5px;color:var(--faint);margin-top:6px}
-.tile .warn{font-size:12px;color:var(--warn);margin-top:2px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-inline-end:5px;vertical-align:middle}
+
 /* detail sheet */
 #sheet{position:fixed;inset:0;z-index:50;display:none}
 #sheet.on{display:block}
 #sheet .bg{position:absolute;inset:0;background:rgba(2,6,23,.72)}
-#sheet .panel{position:absolute;inset:0;margin:auto;max-width:760px;background:var(--bg);border:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch}
-@media(min-width:800px){#sheet .panel{inset:32px 0;border-radius:18px}}
-#sheet .head{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);z-index:2}
+#sheet .panel{position:absolute;inset:0;margin:auto;max-width:780px;background:var(--bg);border:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:820px){#sheet .panel{inset:28px 0;border-radius:18px}}
+#sheet .head{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);z-index:2}
 #sheet .head h2{margin:0;font-size:18px;flex:1}
 #sheet .x{background:var(--card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
 #sheet .body{padding:16px}
-.hero{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:6px}
-.hero .v{font-size:48px;font-weight:700;line-height:1}
-.hero .u{font-size:16px;color:var(--muted);margin-inline-start:4px}
-.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.statgrid div{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
-.statgrid span{display:block;font-size:12px;color:var(--muted)}
-.statgrid b{font-size:18px}
-.explain{display:grid;gap:10px;margin-top:14px}
-.explain .card{padding:14px 16px}
-.explain h3{font-size:14.5px;margin:0 0 6px;color:var(--accent)}
-.explain p,.explain li{font-size:14px;line-height:1.85;margin:0}
-.explain ul{margin:0;padding:0;list-style:none}
-.explain li{padding-inline-start:14px;position:relative}
-.explain li:before{content:"";position:absolute;right:0;top:.9em;width:7px;height:2px;background:var(--accent)}
-.you{background:#0B2A22;border:1px solid #065F46;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.9}
-.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--border);margin-top:4px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.alert{background:#3B1D1D;border:1px solid #7F1D1D;border-radius:var(--r);padding:14px 18px;margin-bottom:14px;line-height:1.8}
-.alert b{color:#FCA5A5}
-.drv{display:grid;grid-template-columns:1fr 150px 64px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--grid)}
-.drv:first-of-type{border-top:0}
-.drv .t{font-size:14.5px;font-weight:600}
-.drv .m{font-size:12px;color:var(--muted);margin-top:2px}
-.drv .bar{height:10px;background:var(--card2);border-radius:999px;overflow:hidden}
-.drv .bar i{display:block;height:100%;background:var(--c1);border-radius:999px}
-.drv .v{font-weight:700;text-align:left;font-size:15px}
-.drv.weak .t{color:var(--muted);font-weight:400}
-.drv.weak .bar i{background:var(--faint)}
-@media(max-width:560px){.drv{grid-template-columns:1fr 70px 50px}}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.row .sp{flex:1}
-select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font:inherit;font-size:13px}
-.chart{position:relative;height:260px}
-.chart.sm{height:200px}
-.chart.lg{height:300px}
-.callout{font-size:14px;margin:0 0 10px;color:var(--text)}
-.callout .num{font-weight:700}
+.hero .v{font-size:44px;font-weight:700;line-height:1}
+.hero .u{font-size:15px;color:var(--muted);margin-inline-start:4px}
+.hero .when{color:var(--muted);font-size:13px;margin-bottom:4px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.stats div{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 10px;min-width:0}
+.stats>div>span{display:block;font-size:11.5px;color:var(--muted)}
+.stats b{font-size:17px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.8}
+.note.w{color:var(--warn)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chart{position:relative;height:240px}
+.chart.lg{height:280px}
+.chart.sm{height:190px}
+h3{font-size:15px;margin:22px 0 8px}
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{color:var(--muted);font-weight:600;text-align:right;padding:8px 6px;border-bottom:1px solid var(--border)}
-td{padding:8px 6px;border-bottom:1px solid var(--grid)}
+th{color:var(--muted);font-weight:600;text-align:right;padding:8px 10px;background:var(--card);position:sticky;top:0;white-space:nowrap}
+td{padding:8px 9px;border-top:1px solid var(--grid);white-space:nowrap}
 td.n,th.n{text-align:left}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:-4px 0 10px}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
-.big{font-size:34px;font-weight:700}
-.muted{color:var(--muted)}
-.empty{color:var(--muted);font-size:13px;padding:20px 0}
-/* 6-month plan */
-.p6bar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;margin:6px 0 12px}
-.p6bar i{display:block;height:100%;background:var(--c1);border-radius:999px}
-.p6phases{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
-.p6phases div{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px 6px;text-align:center;font-size:12px;color:var(--muted)}
-.p6phases div b{display:block;font-size:13px;color:var(--text);margin-bottom:2px}
-.p6phases div.cur{border-color:var(--accent);color:var(--text)}
-.p6phases div.done{opacity:.55}
-@media(max-width:560px){.p6phases{grid-template-columns:repeat(2,1fr)}}
-.p6focus{background:var(--card2);border-radius:12px;padding:12px 16px;margin-bottom:14px;line-height:1.9;font-size:14px}
-.p6focus b{color:var(--accent)}
-.p6h{font-size:15px;font-weight:700;margin:16px 0 8px}
-.pbar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;min-width:80px}
+tr.day td{background:var(--card2);font-weight:700;color:var(--text)}
+tr.sub td{color:var(--muted)}
+tr.sub td b{color:var(--text);font-weight:600}
+.tag{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:1px 7px;color:var(--muted);margin-inline-start:6px}
+.tag.on{border-color:var(--c1);color:var(--accent)}
+.pbar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;min-width:70px}
 .pbar i{display:block;height:100%;background:var(--c1);border-radius:999px}
-.p6in{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;width:120px;direction:ltr;text-align:center}
-.bodyrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--grid)}
-.bodyrow span{color:var(--muted)}
-details.bodyday>summary{list-style:none;cursor:pointer}
-details.bodyday>summary::-webkit-details-marker{display:none}
-details.bodyday .more{color:var(--accent);font-size:12px;margin-inline-start:6px}
-details.bodyday[open] .more{opacity:.6}
-.bodyall{padding:2px 12px 8px;font-size:12.5px}
-.bodyall div{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed var(--grid);color:var(--muted)}
-.bodyall b{color:var(--text);font-weight:600}
+.ok{color:var(--good)} .no{color:var(--faint)}
+.focus{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;line-height:1.9;font-size:13.5px}
+.focus b{color:var(--accent)}
+.drv{display:grid;grid-template-columns:1fr 110px 44px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--grid);font-size:13.5px}
+.drv .bar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden}
+.drv .bar i{display:block;height:100%;background:var(--c1);border-radius:999px}
+.drv.weak{color:var(--muted)} .drv.weak .bar i{background:var(--faint)}
+.in{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;width:120px;direction:ltr;text-align:center}
+select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font:inherit;font-size:13px}
+details.more summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:14px}
+details.more p{font-size:13.5px;line-height:1.9;margin:8px 0 0}
+
 /* lock screen */
 #lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 #lock .box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:380px;text-align:center}
@@ -144,7 +122,6 @@ details.bodyday[open] .more{opacity:.6}
 </style>
 </head>
 <body>
-
 <div id="lock">
   <form class="box" id="lockForm" autocomplete="on">
     <div style="font-size:34px">🔒</div>
@@ -159,131 +136,19 @@ details.bodyday[open] .more{opacity:.6}
 </div>
 
 <div id="sheet"><div class="bg"></div><div class="panel"><div class="head"><h2 id="shT"></h2><button class="x" id="shX" aria-label="إغلاق">✕</button></div><div class="body" id="shB"></div></div></div>
+
 <div id="app"><div class="wrap">
   <header>
-    <div>
-      <h1>لوحتي الصحية</h1>
-      <div class="sub" id="meta"></div>
-    </div>
+    <div><h1>لوحتي الصحية</h1><div class="sub" id="meta"></div></div>
     <button class="btn" id="logout">قفل</button>
   </header>
-
   <div id="alerts"></div>
-  <div class="grid kpis" id="kpis"></div>
-
-  <section class="card" id="p6Card">
-    <h2 style="margin:0 0 2px">خطة 6 أشهر</h2><div class="muted" id="p6Days" style="font-size:13px"></div>
-    <div class="p6bar"><i id="p6Fill"></i></div>
-    <div class="p6phases" id="p6Phases"></div>
-    <div class="p6focus" id="p6Focus"></div>
-    <h3 class="p6h">المؤشرات (آخر 14 يوم مقابل البداية والهدف)</h3>
-    <div style="overflow-x:auto"><table id="p6Table"></table></div>
-    <h3 class="p6h">الوزن والخصر</h3>
-    <p class="hint" id="bodyHint">سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط.</p>
-    <div class="row" id="bodyForm">
-      <input type="number" step="0.1" inputmode="decimal" id="bwW" placeholder="الوزن كغ" class="p6in">
-      <input type="number" step="0.5" inputmode="decimal" id="bwC" placeholder="الخصر سم" class="p6in">
-      <button class="btn on" id="bwAdd">حفظ</button>
-      <button class="btn" id="bwCopy">نسخ السجل</button>
-    </div>
-    <div id="bodyStats"></div>
-    <div class="legend" id="bodyLegend"><span><i style="background:var(--faint)"></i>وزن اليوم</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span></div>
-    <div class="chart sm" id="bodyChartWrap"><canvas id="bodyChart"></canvas></div>
-    <div id="bodyList"></div>
-  </section>
-
-  <section class="card" id="planCard">
-    <h2>خطة النوم</h2>
-    <p class="hint" id="planHint"></p>
-    <div id="plan"></div>
-  </section>
-
-  <section class="card">
-    <h2>وش يرفع تعافيك أنت بالذات</h2>
-    <p class="hint">مقارنة أيامك في آخر 6 شهور: متوسط التعافي في الأيام اللي تحقق فيها الشرط مقابل الأيام اللي ما تحقق فيها. هذا ارتباط وليس سبب مؤكد لكنه مبني على بياناتك أنت مو على متوسطات عامة.</p>
-    <div id="drivers"></div>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <h2 style="margin:0">الاتجاه</h2><div class="sp"></div>
-      <div id="metricBtns" class="row" style="margin:0"></div>
-    </div>
-    <div class="row" id="rangeBtns"></div>
-    <div class="legend"><span><i style="background:var(--faint)"></i>القراءة اليومية</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span></div>
-    <div class="chart lg"><canvas id="trend"></canvas></div>
-    <p class="hint" id="trendNote" style="margin:10px 0 0;display:none"></p>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <h2 style="margin:0">ليلتك بالتفصيل</h2><div class="sp"></div>
-      <select id="nightSel"></select>
-    </div>
-    <p class="callout" id="nightCallout"></p>
-    <div class="grid two">
-      <div>
-        <div class="hint" style="margin-bottom:6px">النبض أثناء النوم (كل 5 دقائق)</div>
-        <div class="chart"><canvas id="nightHr"></canvas></div>
-      </div>
-      <div>
-        <div class="hint" style="margin-bottom:6px">مراحل النوم</div>
-        <div class="chart"><canvas id="hypno"></canvas></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="grid two">
-    <div class="card">
-      <h2>متى يوصل نبضك لأدنى نقطة</h2>
-      <p class="hint">نسبة الليل اللي مرت قبل ما يوصل نبضك لأدناه (الخط الأفقي = نص الليل). لما يكون في النص الأول فجسمك تعافى بدري. تأخره للنص الثاني غالباً مرتبط بأكل متأخر أو كافيين أو ضغط أو تمرين متأخر.</p>
-      <div class="legend"><span><i style="background:var(--c1)"></i>النص الأول</span><span><i style="background:var(--c3)"></i>النص الثاني</span></div>
-      <div class="chart"><canvas id="nadir"></canvas></div>
-    </div>
-    <div class="card">
-      <h2>مواعيد نومك</h2>
-      <p class="hint">كل عمود من وقت النوم لوقت الاستيقاظ لآخر 45 ليلة. الثبات أهم من المدة.</p>
-      <div class="chart"><canvas id="beds"></canvas></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>مراحل النوم آخر 30 ليلة</h2>
-    <p class="hint">بالساعات</p>
-    <div class="legend">
-      <span><i style="background:var(--c1)"></i>عميق</span><span><i style="background:var(--c2)"></i>REM</span>
-      <span><i style="background:var(--c3)"></i>خفيف</span><span><i style="background:var(--c4)"></i>صاحي</span>
-    </div>
-    <div class="chart"><canvas id="stages"></canvas></div>
-  </section>
-
-  <section class="grid two">
-    <div class="card">
-      <h2>التعافي حسب ليلة الأسبوع</h2>
-      <p class="hint">متوسط آخر 6 شهور. الليلة هي اللي قبل اليوم.</p>
-      <div class="chart"><canvas id="weekday"></canvas></div>
-    </div>
-    <div class="card" id="extraCard">
-      <h2>Social Jetlag</h2>
-      <p class="hint">الفرق بين منتصف نومك في ليالي الخميس والجمعة وباقي الأسبوع (آخر 90 يوم). كل ما كبر الفرق كأنك تسافر كل أسبوع.</p>
-      <div id="sj"></div>
-      <div id="ramadan" style="margin-top:18px"></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>القيلولة</h2>
-    <p class="hint">WHOOP يسجل القيلولة تلقائي إذا كانت 15 دقيقة أو أكثر. هنا كل نومة غير نومة الليل الأساسية في آخر 90 يوم.</p>
-    <div id="naps"></div>
-  </section>
-
-  <section class="card">
-    <h2>سرعة نزول النبض بعد التمرين (HRR)</h2>
-    <p class="hint">كم نبضة ينزل قلبك في أول دقيقة بعد ما توقف التمرين. من أقوى مؤشرات اللياقة: تحت 12 منخفض وفوق 20 ممتاز. الأرقام تقريبية لأن النبض مسجل كل دقيقة.</p>
-    <div class="legend"><span><i style="background:var(--faint)"></i>كل تمرين</span><span><i style="background:var(--c1)"></i>متوسط آخر 8 تمارين</span></div>
-    <div class="chart"><canvas id="hrr"></canvas></div>
-    <div style="overflow-x:auto;margin-top:16px"><table id="wtable"></table></div>
-  </section>
+  <div class="sec">اليوم</div>
+  <div class="cards" id="cardsMain"></div>
+  <div class="sec">مؤشرات النوم الإضافية</div>
+  <div class="cards" id="cardsMore"></div>
+  <div class="sec">التفاصيل</div>
+  <div class="cards" id="cardsWide"></div>
 </div></div>
 
 <script>
@@ -291,16 +156,21 @@ details.bodyday[open] .more{opacity:.6}
 const $ = s => document.querySelector(s);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const C = {};
-["--c1","--c2","--c3","--c4","--good","--warn","--bad","--muted","--faint","--grid","--text","--card","--accent"].forEach(k => C[k.slice(2)] = css(k));
+["--c1","--c2","--c3","--c4","--good","--warn","--bad","--muted","--faint","--grid","--text","--card","--accent","--gold"].forEach(k => C[k.slice(2)] = css(k));
 const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const DAYS = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-const nf = (v, d=0) => v == null ? "—" : Number(v).toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
+const nf = (v, d=0) => v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
 const dshort = s => { const d = new Date(s + "T00:00"); return d.getDate() + " " + MONTHS[d.getMonth()]; };
 const dlong = s => { const d = new Date(s + "T00:00"); return DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()]; };
+const nightOf = s => { const d = new Date(s + "T00:00"); d.setDate(d.getDate() - 1); return "ليلة " + DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()]; };
 const hm = h => { if (h == null) return "—"; const m = Math.round(h * 60); return Math.floor(m/60) + ":" + String(m%60).padStart(2,"0"); };
 const clock = h => { if (h == null) return "—"; h = ((h % 24) + 24) % 24; return hm(h); };
 const avg = a => { const v = a.filter(x => x != null); return v.length ? v.reduce((s,x)=>s+x,0)/v.length : null; };
 const roll = (a, n) => a.map((_, i) => avg(a.slice(Math.max(0, i-n+1), i+1)));
+const N = (v, d=0, u="") => `<span class="num">${nf(v, d)}</span>${u ? " " + u : ""}`;
+const P = (v, d=0) => `<span class="num">${nf(v, d)}%</span>`;
+const sgn = (v, d=1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), d);
+const todayKey = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
 
 /* ─────────── decrypt ─────────── */
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -322,6 +192,7 @@ async function unlock(pass, silent){
     $("#lock").style.display = "none"; $("#app").style.display = "block";
     render(data);
   } catch(e) {
+    console.error(e);
     try { localStorage.removeItem("wd_pass"); } catch(_){}
     if (!silent) $("#err").textContent = PKG ? "كلمة المرور غير صحيحة" : "ما قدرت أحمل ملف البيانات";
     $("#go").textContent = "افتح";
@@ -329,9 +200,8 @@ async function unlock(pass, silent){
 }
 $("#lockForm").addEventListener("submit", e => { e.preventDefault(); unlock($("#pass").value); });
 $("#logout").addEventListener("click", () => { try { localStorage.removeItem("wd_pass"); } catch(e){} location.reload(); });
-(() => { let p = null; try { p = localStorage.getItem("wd_pass"); } catch(e){} if (p) { $("#remember").checked = true; unlock(p, true); } })();
 
-/* ─────────── chart defaults ─────────── */
+/* ─────────── charts ─────────── */
 Chart.defaults.font.family = "Inter, Cairo, sans-serif";
 Chart.defaults.font.size = 11.5;
 Chart.defaults.color = C.muted;
@@ -344,35 +214,16 @@ Object.assign(Chart.defaults.plugins.tooltip, {rtl:true, textDirection:"rtl", ba
   titleColor:"#F1F5F9", bodyColor:"#CBD5E1", boxPadding:4, usePointStyle:true});
 const gridX = {grid:{display:false}, border:{color:C.grid}, ticks:{maxRotation:0, autoSkipPadding:18}};
 const gridY = {grid:{color:C.grid, drawTicks:false}, border:{display:false}, ticks:{padding:8}};
+const dateX = {...gridX, ticks:{...gridX.ticks, callback:function(v){ return dshort(this.getLabelForValue(v)); }}};
 const charts = {};
-function mk(id, cfg){ if (charts[id]) charts[id].destroy(); charts[id] = new Chart($("#" + id), cfg); return charts[id]; }
+function mk(id, cfg){ if (charts[id]) charts[id].destroy(); const el = document.getElementById(id); if (!el) return; charts[id] = new Chart(el, cfg); return charts[id]; }
 const ringPoint = {pointBorderColor: () => C.card, pointBorderWidth: 2};
-
-/* ─────────── render ─────────── */
-let D;
-function render(data){
-  D = data;
-  $("#meta").innerHTML = `آخر تحديث <span class="num">${data.meta.generated}</span> · بيانات <span class="num">${nf(data.meta.days)}</span> يوم من ${dshort(data.meta.first)} ${data.meta.first.slice(0,4)}`;
-  renderAlerts(); renderKpis(); renderDrivers(); setupTrend(); setupNights(); renderNadir(); renderBeds();
-  renderStages(); renderWeekday(); renderExtra(); renderNaps(); renderWorkouts(); renderPlan(); renderP6();
+function refLine(val, txt){
+  return {id:"ref" + val, afterDatasetsDraw(ch){ const {ctx, chartArea:a, scales:{y}} = ch; const py = y.getPixelForValue(val);
+    if (py < a.top || py > a.bottom) return;
+    ctx.save(); ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke();
+    ctx.fillStyle = "#94A3B8"; ctx.font = "11px Cairo"; ctx.textAlign = "left"; ctx.fillText(txt, a.left + 4, py - 5); ctx.restore(); }};
 }
-
-function renderAlerts(){
-  const a = D.alerts || [];
-  if (!a.length) { $("#alerts").innerHTML = ""; return; }
-  const items = a.map(x => `<b>${x.metric}</b> <span class="num">${nf(x.value,1)}</span> (معدلك <span class="num">${nf(x.avg,1)}</span>)`).join(" · ");
-  $("#alerts").innerHTML = `<div class="alert">⚠ قراءات اليوم بعيدة عن معدلك في آخر 30 يوم: ${items}<br><span class="muted">ارتفاع نبض الراحة ومعدل التنفس مع بعض يسبق المرض أحياناً بيوم أو يومين.</span></div>`;
-}
-
-const KPI = [
-  {k:"recovery", lbl:"التعافي", unit:"%", d:0, good:1},
-  {k:"hrv", lbl:"HRV", unit:"ms", d:0, good:1},
-  {k:"rhr", lbl:"نبض الراحة", unit:"bpm", d:0, good:-1},
-  {k:"sleep_h", lbl:"النوم", unit:"", d:1, good:1, fmt:hm},
-  {k:"strain", lbl:"الإجهاد", unit:"", d:1, good:0},
-  {k:"resp", lbl:"معدل التنفس", unit:"/min", d:1, good:-1},
-];
-function recStatus(v){ return v >= 67 ? ["جاهز", C.good] : v >= 34 ? ["متوسط", C.warn] : ["منخفض", C.bad]; }
 function sparkSVG(vals){
   const v = vals.map((x,i) => [i,x]).filter(p => p[1] != null); if (v.length < 2) return "";
   const xs = vals.length - 1, lo = Math.min(...v.map(p=>p[1])), hi = Math.max(...v.map(p=>p[1])), rg = (hi - lo) || 1;
@@ -380,490 +231,395 @@ function sparkSVG(vals){
   const d = v.map((p,i) => (i ? "L" : "M") + pt(p).join(" ")).join(" "); const l = pt(v[v.length-1]);
   return `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="${C.faint}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><path d="M${l[0]} ${l[1]}l0 0" stroke="${C.accent}" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
-function renderKpis(){
-  const box = $("#kpis"); box.innerHTML = "";
-  KPI.forEach(m => {
-    const k = D.kpis[m.k]; if (!k || k.value == null) return;
-    const diff = k.avg30 != null ? k.value - k.avg30 : null;
-    const cls = diff == null || m.good === 0 || Math.abs(diff) < 1e-9 ? "" : (diff * m.good > 0 ? "up-good" : "up-bad");
-    const arrow = diff == null ? "" : diff > 0 ? "▲" : diff < 0 ? "▼" : "";
-    const val = m.fmt ? m.fmt(k.value) : nf(k.value, m.d);
-    const dtxt = diff == null ? "" : (m.fmt ? (diff>0?"+":"−") + hm(Math.abs(diff)) : (diff>0?"+":"") + nf(diff, m.d));
-    let status = "";
-    if (m.k === "recovery") { const [t, c] = recStatus(k.value); status = `<div class="status"><span class="dot" style="background:${c}"></span>${t}</div>`; }
-    const warn = (m.k === "hrv" || m.k === "recovery") && D.hrv_quality && D.hrv_quality.n14 > 0 ? `<div class="warn">⚠ قراءة مشكوك فيها</div>` : "";
-    const el = document.createElement("div"); el.className = "card tile"; el.tabIndex = 0; el.setAttribute("role", "button");
-    el.innerHTML = `<div class="lbl">${m.lbl}</div><div class="val num">${val}<small>${m.unit}</small></div>
-      <div class="delta"><b class="${cls} num">${arrow} ${dtxt}</b> عن معدل 30 يوم</div>${status}${warn}<div class="spark">${sparkSVG(k.spark)}</div><div class="more">التفاصيل ←</div>`;
-    el.onclick = () => openSheet(m.k); el.onkeydown = e => { if (e.key === "Enter") openSheet(m.k); };
+
+/* ─────────── metrics ─────────── */
+const M = {
+  recovery:{t:"التعافي", sk:"recovery", unit:"%", d:0, good:1, target:60, norm:"أخضر 67 وفوق · أصفر 34 لـ66 · أحمر 33 وتحت. الهدف متوسط 60."},
+  sleep_h:{t:"النوم", sk:"sleep_h", unit:"", d:1, good:1, target:7.5, fmt:hm, norm:"احتياجك حوالي 8.3 ساعة. الهدف 7.5 ساعة وتنام 12:00 وتقوم 8:30."},
+  rhr:{t:"نبض الراحة", sk:"rhr", unit:"bpm", d:0, good:-1, target:66, norm:"الطبيعي وأنت نايم 50 لـ70. الأقل أحسن. ارتفاع 5 فوق معدلك يومين ورا بعض = مرض أو إرهاق. هذا أصدق مؤشر عندك."},
+  hrv:{t:"HRV", sk:"hrv", unit:"ms", d:0, good:1, target:42, norm:"قارن رقمك بمعدلك أنت. الهدف 42."},
+  strain:{t:"الإجهاد", sk:"strain", unit:"", d:1, good:0, target:8, norm:"0 لـ9 خفيف · 10 لـ13 متوسط · 14 وفوق عالي. الهدف 8 لـ12 أغلب الأيام."},
+  resp:{t:"التنفس", sk:"resp", unit:"/د", d:1, good:-1, norm:"الطبيعي 12 لـ20 نفس بالدقيقة. المهم يكون ثابت."},
+  skin:{t:"حرارة الجلد", sk:"skin_temp", unit:"°C", d:1, good:-1, norm:"34.5 وفوق = ليلة حارة. عندك كل ليلة حارة طلع بعدها التعافي سيئ."},
+  spo2:{t:"الأكسجين", sk:"spo2", unit:"%", d:1, good:1, norm:"الطبيعي 95 لـ100. قراءة السوار مو دقيقة طبياً فشوف الاتجاه بس."},
+  nadir:{t:"أدنى نبض بالليل", sk:"nadir_hr", unit:"bpm", d:0, good:-1, norm:"أقل نبض وصلت له وأنت نايم. لو وصل له بدري في الليل فهذا أفضل."},
+  deep:{t:"النوم العميق", sk:"deep", unit:"د", d:0, good:1, norm:"الطبيعي 13 لـ23% من النوم (حوالي 60 لـ110 دقيقة)."},
+  rem:{t:"نوم الأحلام REM", sk:"rem", unit:"د", d:0, good:1, norm:"الطبيعي 20 لـ25% من النوم (حوالي 90 لـ120 دقيقة)."},
+  awake:{t:"الصحوات", sk:"awake", unit:"د", d:0, good:-1, norm:"مجموع الدقايق اللي صحيت فيها خلال الليل. الأقل أحسن."},
+};
+const suspect = k => (k === "hrv" || k === "recovery" || k === "resp");
+function series(k){ return (D.series[M[k].sk] || []); }
+function lastIdx(a){ for (let i = a.length - 1; i >= 0; i--) if (a[i] != null) return i; return -1; }
+function fmtV(k, v){ return M[k].fmt ? M[k].fmt(v) : nf(v, M[k].d); }
+function stats(a){
+  const v = a.filter(x => x != null); if (!v.length) return null;
+  const mean = v.reduce((x,y)=>x+y,0) / v.length; const sd = Math.sqrt(v.reduce((x,y)=>x+(y-mean)**2,0) / v.length);
+  return {mean, sd, min:Math.min(...v), max:Math.max(...v), n:v.length};
+}
+function recDot(v){ const c = v >= 67 ? C.good : v >= 34 ? C.warn : C.bad; return `<span class="dot" style="background:${c}"></span>`; }
+
+/* ─────────── render ─────────── */
+let D;
+function render(data){
+  D = data;
+  const g = new Date(data.meta.generated.replace(" ", "T") + ":00Z");
+  const when = isNaN(g) ? data.meta.generated : g.toLocaleString("en-GB", {timeZone:"Asia/Riyadh", day:"numeric", month:"numeric", hour:"2-digit", minute:"2-digit", hour12:false});
+  $("#meta").innerHTML = `آخر تحديث <span class="num">${when}</span> · <span class="num">${nf(data.meta.days)}</span> يوم بيانات`;
+  const a = D.alerts || [];
+  $("#alerts").innerHTML = a.length ? `<div class="alert">⚠ قراءة اليوم بعيدة عن معدلك: ${a.map(x => `<b>${x.metric}</b> ${N(x.value,1)} (معدلك ${N(x.avg,1)})`).join(" · ")}</div>` : "";
+  renderCards();
+}
+
+function metricCard(k){
+  const m = M[k], a = series(k), i = lastIdx(a); if (i < 0) return null;
+  const v = a[i], s30 = stats(a.slice(-31, -1)), diff = s30 ? v - s30.mean : null;
+  const cls = diff == null || !m.good || Math.abs(diff) < 1e-9 ? "" : (diff * m.good > 0 ? "up-good" : "up-bad");
+  const dtxt = diff == null ? "" : (m.fmt ? (diff > 0 ? "+" : "−") + hm(Math.abs(diff)) : sgn(diff, m.d));
+  const flag = suspect(k) && D.series.hrv_suspect && D.series.hrv_suspect[i] ? `<div class="flag">⚠ قراءة مشكوك فيها</div>` : "";
+  const dot = k === "recovery" ? recDot(v) : "";
+  return {k, html:`<div class="top"><span class="lbl">${dot}${m.t}</span><span class="chev">‹</span></div>
+    <div class="val num">${fmtV(k, v)}<small>${m.unit}</small></div>
+    <div class="dl"><b class="num ${cls}">${dtxt}</b> عن معدل 30 يوم</div>${flag}
+    <div class="spark">${sparkSVG(a.slice(-14))}</div>`};
+}
+function weightCard(){
+  const S = D.scale; const man = manualW();
+  if (!S && !man.length) return {k:"weight", html:`<div class="top"><span class="lbl">الوزن</span><span class="chev">‹</span></div><div class="val">—</div><div class="dl">ما فيه قراءات بعد</div>`};
+  const R = allReadings(); const last = R[R.length - 1];
+  const daily = dailyWeights();
+  const ch = last.w - BODY.w0;
+  return {k:"weight", html:`<div class="top"><span class="lbl">الوزن</span><span class="chev">‹</span></div>
+    <div class="val num">${nf(last.w,1)}<small>كغ</small></div>
+    <div class="dl"><b class="num ${ch < 0 ? "up-good" : ch > 0 ? "up-bad" : ""}">${sgn(ch)}</b> من البداية${last.fat != null ? ` · دهون ${P(last.fat,1)}` : ""}</div>
+    <div class="dl">${N(R.length)} قراءة</div>
+    <div class="spark">${sparkSVG(daily.slice(-14).map(x => x.w))}</div>`};
+}
+function nightCard(){
+  const s = D.series, i = lastIdx(s.sleep_h); if (i < 0) return null;
+  return {k:"night", wide:true, html:`<div class="top"><span class="lbl">الليلة الماضية</span><span class="chev">‹</span></div>
+    <div class="val"><span class="num">${clock(s.bed_h[i])}</span> <span class="muted" style="font-size:15px">←</span> <span class="num">${clock(s.wake_h[i])}</span></div>
+    <div class="dl">نوم <span class="num">${hm(s.sleep_h[i])}</span> · أدنى نبض ${N(s.nadir_hr[i])} · عميق ${N(s.deep[i])} د · REM ${N(s.rem[i])} د</div>
+    <div class="dl muted">منحنى النبض ومراحل النوم لكل ليلة</div>`};
+}
+function workoutsCard(){
+  const W = D.workouts || []; const last = W[W.length - 1];
+  const since = new Date(); since.setDate(since.getDate() - 7);
+  const wk = W.filter(w => new Date(w.date + "T00:00") >= since).length;
+  return {k:"workouts", wide:true, html:`<div class="top"><span class="lbl">التمارين</span><span class="chev">‹</span></div>
+    <div class="val">${N(wk)} <span class="muted" style="font-size:14px">في آخر 7 أيام</span></div>
+    <div class="dl">${last ? `آخر واحد ${dshort(last.date)} · ${last.sport || ""} ${N(last.min)} د` : "ما فيه تمارين"}</div>`};
+}
+function planCard(){
+  const t0 = new Date(P6.start + "T00:00"), t1 = new Date(P6.end + "T00:00");
+  const total = Math.round((t1 - t0) / 864e5), el = Math.max(0, Math.min(total, Math.round((new Date() - t0) / 864e5)));
+  const ph = curPhase();
+  return {k:"plan", wide:true, html:`<div class="top"><span class="lbl">خطة 6 أشهر</span><span class="chev">‹</span></div>
+    <div class="val">اليوم ${N(el)} <span class="muted" style="font-size:14px">من ${N(total)}</span></div>
+    <div class="dl">المرحلة: ${ph.n}</div><div class="pbar"><i style="width:${(100 * el / total).toFixed(1)}%"></i></div>`};
+}
+function patternsCard(){
+  const top = (D.drivers || []).find(x => x.strong);
+  return {k:"patterns", wide:true, html:`<div class="top"><span class="lbl">وش يأثر على تعافيك</span><span class="chev">‹</span></div>
+    <div class="val" style="font-size:17px">${top ? top.text : "—"}</div>
+    <div class="dl">${top ? `تعافي ${P(top.better_avg)} مقابل ${P(top.worse_avg)}` : ""}</div>`};
+}
+function addCards(box, list){
+  box.innerHTML = "";
+  list.filter(Boolean).forEach(c => {
+    const el = document.createElement("div"); el.className = "c" + (c.wide ? " wide" : ""); el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = c.html; el.onclick = () => openSheet(c.k); el.onkeydown = e => { if (e.key === "Enter") openSheet(c.k); };
     box.appendChild(el);
   });
 }
+function renderCards(){
+  addCards($("#cardsMain"), [metricCard("recovery"), metricCard("sleep_h"), metricCard("rhr"), weightCard(),
+                             metricCard("hrv"), metricCard("strain"), metricCard("skin"), metricCard("resp")]);
+  addCards($("#cardsMore"), [metricCard("nadir"), metricCard("deep"), metricCard("rem"), metricCard("spo2")]);
+  addCards($("#cardsWide"), [nightCard(), workoutsCard(), planCard(), patternsCard()]);
+}
 
-/* ─────────── metric detail sheet ─────────── */
-const INFO = {
-  recovery: {target:60, t:"التعافي", unit:"%", d:0, sk:"recovery",
-    what:"رقم من 0 لـ 100 يقول لك WHOOP فيه كم جسمك جاهز اليوم. ينحسب مرة وحدة كل صباح بعد ما تصحى.",
-    how:"يجمع HRV ونبض الراحة ومعدل التنفس ومدة نومك ويقارنها بمعدلك أنت في آخر 30 يوم. يعني ما يقارنك بأحد غيرك.",
-    range:"أخضر 67 وفوق: جاهز لجهد عالي. أصفر 34 لـ 66: جهد متوسط. أحمر 33 وتحت: يومك راحة ونوم بدري.",
-    up:["نوم 7 ساعات وأكثر وقبل 12:30","غرفة باردة ومظلمة","يوم خفيف أمس","مويه كافية"],
-    down:["نوم أقل من 6 ساعات","ليلة حارة (حرارة الجلد فوق 34.5)","أول يومين بعد إبرة المونجارو","مرض أو جفاف","تمرين قوي أمس","كافيين أو أكل متأخر"]},
-  hrv: {target:42, t:"HRV تقلب نبضات القلب", unit:"ms", d:0, sk:"hrv",
-    what:"قلبك ما يدق مثل الساعة. بين كل نبضة والثانية فيه فرق أجزاء من الثانية يتغير مع كل نفس. HRV هو مقدار هذا التغير. تغير كبير يعني الجهاز العصبي في وضع الراحة والترميم. تغير صغير يعني الجسم في وضع الطوارئ.",
-    how:"الحساس الضوئي في السوار يقرأ النبض من جلدك ويحسب الفواصل بين النبضات (RMSSD). WHOOP يقيسه في آخر فترة نوم عميق كل ليلة عشان يطلع رقم واحد يقارن يوم بيوم. أي شي يشوش الإشارة وأنت نايم (سوار مرخي أو حركة أو عرق) يخرب الرقم.",
-    range:"ما فيه رقم صحيح للكل. رجل بعمر 38 عادةً بين 35 و60 والرياضيين 70 لـ 120. المهم رقمك مقابل معدلك أنت. انتبه لمتوسط 7 أيام مو قراءة يوم واحد.",
-    up:["نوم كافي وبدري","غرفة باردة","يوم راحة بعد تمرين","مويه كافية","نزول الوزن","لياقة أحسن مع الشهور"],
-    down:["مرض (ينزل قبل الأعراض بيوم أو يومين)","تمرين قوي أمس","نوم قصير أو متأخر","أكل أو كافيين متأخر","جفاف وحرارة","توتر","المونجارو يقلله شوي"]},
-  rhr: {target:66, t:"نبض الراحة", unit:"bpm", d:0, sk:"rhr", good:-1,
-    what:"أقل معدل لنبضك وأنت نايم. كل ما كان أقل كان قلبك يشتغل براحة أكثر.",
-    how:"WHOOP يحسبه من نبضك في فترة النوم العميق. رقم ثابت وما يتأثر كثير بتشويش السوار. عشان كذا هو أصدق مؤشر عندك الحين.",
-    range:"الطبيعي للبالغين 50 لـ 70 وأنت نايم. تحت 60 ممتاز. فوق 70 مرتفع. ارتفاع 5 نبضات فوق معدلك يومين ورا بعض علامة مرض أو جفاف أو إرهاق.",
-    up:["مرض أو التهاب","جفاف (الإسهال والحر)","ليلة حارة","أكل متأخر أو كافيين","نوم قليل","المونجارو يرفعه 2 لـ 4 نبضات"],
-    down:["مشي يومي وهرولة","نزول الوزن والخصر","نوم كافي","مويه"]},
-  sleep_h: {target:7.5, t:"ساعات النوم", unit:"", d:1, sk:"sleep_h", fmt:v => hm(v),
-    what:"الوقت اللي كنت فيه نايم فعلاً. مو الوقت في السرير. يعني من غير الصحوات والوقت اللي تاخذه لين تنام.",
-    how:"WHOOP يعرف إنك نايم من حركتك ونبضك وتنفسك ويقسم النوم لمراحل: خفيف وعميق وREM.",
-    range:"WHOOP يقدر احتياجك 8.3 ساعة (يزيد لما يكون عليك دين نوم أو إجهاد). البالغ يحتاج 7 لـ 9 ساعات.",
-    up:["نوم قبل 12:30","ظلام تام لين 8:30","غرفة باردة","كافيين قبل 12 الظهر بس","آخر وجبة 9 الليل"],
-    down:["سهر بعد 1","القهوة بعد العشاء","الضوء الصبح","منبه زوجتك وحركة البيت","حرارة الغرفة"]},
-  strain: {target:8, t:"الإجهاد", unit:"", d:1, sk:"strain",
-    what:"كم تعب قلبك خلال اليوم كله من شغل ومشي وتمرين وتوتر. مقياس من 0 لـ 21.",
-    how:"يحسبه من الوقت اللي نبضك فيه فوق مستوى الراحة. المقياس لوغاريتمي: الوصول من 10 لـ 14 أصعب بكثير من 4 لـ 8.",
-    range:"0 لـ 9 خفيف. 10 لـ 13 متوسط. 14 لـ 17 عالي. 18 لـ 21 أقصى جهد. الهدف لأغلب أيامك 8 لـ 12.",
-    up:["مشي 10 دقايق بعد الغدا","حديد مرتين في الأسبوع","مشي أو هرولة الجمعة"],
-    down:["أيام المكتب بدون حركة","السيارة من الباب للباب"]},
-  resp: {t:"معدل التنفس", unit:"/min", d:1, sk:"resp", good:-1,
-    what:"عدد الأنفاس في الدقيقة وأنت نايم. عند كل شخص رقم ثابت تقريباً ما يتغير إلا لسبب.",
-    how:"WHOOP يستنتجه من تغير نبضك مع كل نفس. عشان كذا يتأثر بنفس تشويش HRV.",
-    range:"الطبيعي 12 لـ 20. المهم إنه ثابت. ارتفاع نفس كامل فوق معدلك عدة أيام مع ارتفاع نبض الراحة علامة مبكرة لعدوى.",
-    up:["عدوى أو التهاب","حرارة","تشويش السوار"],
-    down:["نوم هادي","لياقة أحسن"]}
-};
-function statsOf(arr){
-  const v = arr.filter(x => x != null); if (!v.length) return null;
-  const mean = v.reduce((a,b)=>a+b,0) / v.length; const sd = Math.sqrt(v.reduce((a,b)=>a+(b-mean)**2,0) / v.length);
-  return {mean, sd, min:Math.min(...v), max:Math.max(...v), n:v.length};
-}
-function youText(k, st7, st30, last){
-  const f = v => INFO[k].fmt ? INFO[k].fmt(v) : nf(v, INFO[k].d);
-  const q = D.hrv_quality;
-  if (k === "hrv") return q ? `عندك ${q.n_total} يوم من ${st30 ? D.series.hrv.filter(v=>v!=null).length : 0} فيها HRV قفز لأكثر من الضعف (${q.high_median} بدل ${q.low_median}) بدون ما يتغير نبض الراحة أبداً. هذا غالباً السوار مرخي. <b>رقمك الحقيقي تقريباً ${q.low_median}.</b> الأيام البرتقالية في الرسم لا تعتمد عليها. شد السوار وارفعه إصبعين فوق الرسغ 4 ليالي وشوف هل ينزل. هدفك الواقعي 40 لـ 45 خلال 6 أشهر.` : `متوسط آخر 7 أيام ${f(st7.mean)} مقابل ${f(st30.mean)} لآخر 30 يوم.`;
-  if (k === "recovery") return `متوسط آخر 7 أيام ${f(st7.mean)}% مقابل ${f(st30.mean)}% لآخر 30 يوم.` + (q && q.n14 ? ` لكن انتبه: التعافي مبني على HRV وHRV عندك فيه قراءات مشكوك فيها في آخر أسبوعين. فالأرقام العالية الأخيرة غالباً مبالغ فيها وتعافيك الحقيقي أقرب لـ 30 لـ 40%.` : "") + ` أقوى 3 أشياء ترفعه عندك من بياناتك: النوم أكثر من 6.4 ساعة وإجهاد أمس خفيف والنوم قبل 2.`;
-  if (k === "rhr") return `متوسط آخر 7 أيام ${f(st7.mean)} ومتوسط 30 يوم ${f(st30.mean)}. بدأت الخطة من 74 وهدفك 66. هذا المؤشر هو الأصدق عندك لأن تشويش السوار ما يأثر عليه. وتوقع إنه يطلع 2 لـ 4 نبضات مع المونجارو وبعد يوم الإبرة بيومين.`;
-  if (k === "sleep_h") return `متوسط آخر 7 أيام ${f(st7.mean)} مقابل احتياج 8.3 ساعة. كل ساعة نوم زيادة عندك ترفع التعافي 8 نقاط. جسمك يصحيك 7:10 لـ 7:30 مهما سهرت. يعني الطريق الوحيد لنوم أطول إنك تنام أبدر.`;
-  if (k === "strain") return `متوسط آخر 7 أيام ${f(st7.mean)}. أغلب أيامك تحت 8 وهذا خمول. 41% من أيامك في أول 3 أشهر كانت تحت 5. الهدف 8 لـ 12 أغلب الأيام بالمشي والحديد.`;
-  if (k === "resp") return `متوسط آخر 7 أيام ${f(st7.mean)}. عندك يقفز بين 14.5 و16 بنفس أيام قفزات HRV. هذا يأكد إن السبب تشويش السوار مو تغير حقيقي في تنفسك.`;
-  return "";
-}
-let shRange = 90;
+/* ─────────── sheet ─────────── */
+let shRange = 30, shAll = false, curSheet = null;
 function openSheet(k){
-  const I = INFO[k]; if (!I) return;
-  $("#shT").textContent = I.t; $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
+  curSheet = k; shAll = false;
+  $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
   try { history.pushState({sheet:k}, ""); } catch(e) {}
   drawSheet(k);
 }
-function closeSheet(){ $("#sheet").classList.remove("on"); document.body.style.overflow = ""; }
+function drawSheet(k){
+  const T = {weight:"الوزن", night:"الليالي", workouts:"التمارين", plan:"خطة 6 أشهر", patterns:"وش يأثر على تعافيك"};
+  $("#shT").textContent = T[k] || M[k].t;
+  if (k === "weight") sheetWeight(); else if (k === "night") sheetNight(); else if (k === "workouts") sheetWorkouts();
+  else if (k === "plan") sheetPlan(); else if (k === "patterns") sheetPatterns(); else sheetMetric(k);
+  $("#sheet .panel").scrollTop = 0;
+}
+function closeSheet(){ $("#sheet").classList.remove("on"); document.body.style.overflow = ""; curSheet = null; }
 $("#shX").onclick = () => { closeSheet(); try { if (history.state && history.state.sheet) history.back(); } catch(e) {} };
 $("#sheet .bg").onclick = () => $("#shX").onclick();
 window.addEventListener("popstate", closeSheet);
-document.addEventListener("keydown", e => { if (e.key === "Escape") $("#shX").onclick(); });
-function drawSheet(k){
-  const I = INFO[k], s = D.series, all = s[I.sk] || [], n = all.length;
-  const f = v => v == null ? "—" : (I.fmt ? I.fmt(v) : nf(v, I.d));
-  const last = [...all].reverse().find(v => v != null);
-  const st7 = statsOf(all.slice(-7)), st30 = statsOf(all.slice(-30)), stA = statsOf(all);
-  const first30 = statsOf(all.slice(0, 30));
-  const chg = st30 && first30 ? st30.mean - first30.mean : null;
-  const unit = I.unit ? `<span class="u">${I.unit}</span>` : "";
-  const ranges = [["30 يوم",30],["90 يوم",90],["الكل",1e6]];
+document.addEventListener("keydown", e => { if (e.key === "Escape" && curSheet) $("#shX").onclick(); });
+
+const RANGES = [["30 يوم",30],["90 يوم",90],["الكل",1e6]];
+function rangeBtns(redraw){
+  return `<div class="row" id="shRanges">${RANGES.map(([t,v]) => `<button class="btn${v===shRange?" on":""}" data-r="${v}">${t}</button>`).join("")}</div>`;
+}
+function bindRanges(redraw){ document.querySelectorAll("#shRanges button").forEach(b => b.onclick = () => { shRange = +b.dataset.r; redraw(); }); }
+function moreBtn(total, redraw){
+  if (total <= 30) return "";
+  setTimeout(() => { const b = $("#shAllBtn"); if (b) b.onclick = () => { shAll = !shAll; redraw(); }; });
+  return `<button class="btn" id="shAllBtn" style="margin-top:10px">${shAll ? "أقل" : `كل الأيام (${total})`}</button>`;
+}
+
+function sheetMetric(k){
+  const m = M[k], s = D.series, a = series(k), n = a.length, i = lastIdx(a);
+  const st7 = stats(a.slice(-7)), st30 = stats(a.slice(-30)), stA = stats(a);
+  const susp = suspect(k) && s.hrv_suspect ? s.hrv_suspect : null;
+  const f = v => v == null ? "—" : fmtV(k, v);
+  const unit = m.unit ? `<span class="u">${m.unit}</span>` : "";
+  const q = D.hrv_quality;
+  const warn = suspect(k) && q && q.n_total ? `<p class="note w">⚠ HRV يقفز بين نمطين (حوالي ${N(q.low_median)} وحوالي ${N(q.high_median)}) بدون ما يتغير نبض الراحة. النقاط البرتقالية مشكوك فيها${k !== "hrv" ? " وهذا المؤشر يتأثر بها" : ""}. اعتمد على نبض الراحة والنوم أكثر.</p>` : "";
   $("#shB").innerHTML = `
-    <div class="hero"><div><div class="muted" style="font-size:13px">آخر قراءة · ${dlong(s.date[n-1])}</div><div><span class="v num">${f(last)}</span>${unit}</div></div></div>
-    <div class="statgrid">
+    <div class="hero"><div class="when">${i >= 0 ? nightOf(s.date[i]).replace("ليلة", "صباح بعد ليلة") : ""}</div><span class="v num">${f(a[i])}</span>${unit}</div>
+    <div class="stats">
       <div><span>متوسط 7 أيام</span><b class="num">${f(st7 && st7.mean)}</b></div>
       <div><span>متوسط 30 يوم</span><b class="num">${f(st30 && st30.mean)}</b></div>
-      <div><span>من أول شهر</span><b class="num">${chg == null ? "—" : (chg > 0 ? "+" : "") + (I.fmt ? hm(Math.abs(chg)) : nf(chg, I.d))}</b></div>
+      <div><span>${m.target != null ? "الهدف" : "عدد الأيام"}</span><b class="num">${m.target != null ? f(m.target) : (stA ? stA.n : 0)}</b></div>
       <div><span>أعلى قراءة</span><b class="num">${f(stA && stA.max)}</b></div>
       <div><span>أقل قراءة</span><b class="num">${f(stA && stA.min)}</b></div>
-      <div><span>عدد الأيام</span><b class="num">${stA ? stA.n : 0}</b></div>
+      <div><span>متوسط الكل</span><b class="num">${f(stA && stA.mean)}</b></div>
     </div>
-    <div class="row" id="shRanges">${ranges.map(([t,v]) => `<button class="btn${v===shRange?" on":""}" data-r="${v}">${t}</button>`).join("")}</div>
-    <div class="legend"><span><i style="background:var(--faint)"></i>اليومي</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span><span><i style="background:rgba(52,211,153,.25)"></i>معدلك الطبيعي (30 يوم)</span>${I.target != null ? `<span><i style="background:#64748B;height:2px"></i>الهدف</span>` : ""}${k==="hrv"||k==="recovery"?`<span><i style="background:var(--c3)"></i>مشكوك فيها</span>`:""}</div>
+    ${rangeBtns()}
+    <div class="legend"><span><i style="background:var(--faint)"></i>اليومي</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span>${m.target != null ? `<span><i style="background:#64748B;height:2px"></i>الهدف</span>` : ""}${susp ? `<span><i style="background:var(--c3)"></i>مشكوك فيها</span>` : ""}</div>
     <div class="chart lg"><canvas id="shChart"></canvas></div>
-    <div class="you" style="margin-top:14px"><b>وضعك أنت:</b> ${youText(k, st7, st30, last)}</div>
-    <div class="explain">
-      <div class="card"><h3>وش هو</h3><p>${I.what}</p></div>
-      <div class="card"><h3>كيف ينقاس</h3><p>${I.how}</p></div>
-      <div class="card"><h3>كم المفروض يكون</h3><p>${I.range}</p></div>
-      <div class="grid two"><div class="card"><h3>وش يرفعه</h3><ul>${I.up.map(x=>`<li>${x}</li>`).join("")}</ul></div>
-      <div class="card"><h3>وش ينزله</h3><ul>${I.down.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>
-    </div>`;
-  $("#shRanges").querySelectorAll("button").forEach(b => b.onclick = () => { shRange = +b.dataset.r; drawSheet(k); });
-  const start = Math.max(0, n - shRange), labels = s.date.slice(start), y = all.slice(start), r7 = roll(all, 7).slice(start);
-  const susp = (k === "hrv" || k === "recovery") && s.hrv_suspect ? s.hrv_suspect.slice(start) : null;
-  const cleanSt = susp ? statsOf(all.slice(-30).map((v, i) => s.hrv_suspect[n - 30 + i] ? null : v)) : null;
-  const bst = cleanSt && cleanSt.n >= 5 ? cleanSt : st30;
-  const band = bst ? [bst.mean - bst.sd, bst.mean + bst.sd] : null;
-  const ds = [];
-  if (band) {
-    ds.push({label:"band-lo", data:labels.map(()=>band[0]), borderWidth:0, pointRadius:0, fill:false});
-    ds.push({label:"band-hi", data:labels.map(()=>band[1]), borderWidth:0, pointRadius:0, fill:"-1", backgroundColor:"rgba(52,211,153,.10)"});
-  }
-  ds.push({label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, spanGaps:true, tension:.2,
-    pointRadius: susp ? susp.map(v => v ? 3.5 : 2) : 2, pointBackgroundColor: susp ? susp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0});
-  ds.push({label:"متوسط 7 أيام", data:r7, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35});
-  mk("shChart", {type:"line", data:{labels, datasets:ds},
+    <p class="note">${m.norm}</p>${warn}
+    ${k === "sleep_h" ? "" : `<h3>القراءات يوم بيوم</h3><div class="tbl"><table id="shTable"></table></div><div id="shMore"></div>`}`;
+  bindRanges(() => sheetMetric(k));
+  const start = Math.max(0, n - shRange), labels = s.date.slice(start), y = a.slice(start), r7 = roll(a, 7).slice(start);
+  const sp = susp ? susp.slice(start) : null, many = labels.length > 100;
+  mk("shChart", {type:"line", data:{labels, datasets:[
+      {label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, spanGaps:true, tension:.2,
+       pointRadius: sp ? sp.map(v => v ? 3.5 : (many ? 0 : 2)) : (many ? 0 : 2), pointBackgroundColor: sp ? sp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0},
+      {label:"متوسط 7 أيام", data:r7, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35}]},
     options:{interaction:{mode:"index", intersect:false},
-      plugins:{tooltip:{filter:it => !it.dataset.label.startsWith("band"), callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${f(it.raw)} ${I.fmt ? "" : I.unit}`}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
-              y:{...gridY, ticks:{...gridY.ticks, callback:v => I.fmt ? hm(v) : nf(v, I.d > 1 ? 1 : 0)}}}},
-    plugins: I.target != null ? [refLine(I.target, "الهدف")] : []});
-  $("#sheet .panel").scrollTop = 0;
+      plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${f(it.raw)} ${m.fmt ? "" : m.unit}`}}},
+      scales:{x:dateX, y:{...gridY, ticks:{...gridY.ticks, callback:v => m.fmt ? hm(v) : nf(v, m.d > 0 && k !== "sleep_h" ? 1 : 0)}}}},
+    plugins: m.target != null ? [refLine(m.target, "الهدف")] : []});
+  if (k === "sleep_h") { sleepExtras(); return; }
+  // table: newest first
+  const rows = []; for (let j = n - 1; j >= 0; j--) if (a[j] != null) rows.push(j);
+  const show = shAll ? rows : rows.slice(0, 30);
+  const s30 = st30 ? st30.mean : null;
+  $("#shTable").innerHTML = `<tr><th>اليوم</th><th class="n">القراءة</th><th class="n">عن المعدل</th></tr>` + show.map(j => {
+    const d = s30 != null ? a[j] - s30 : null;
+    const cls = d == null || !m.good ? "" : (d * m.good > 0 ? "up-good" : "up-bad");
+    return `<tr><td>${dlong(s.date[j])}${susp && susp[j] ? ` <span class="tag" style="color:var(--c3);border-color:var(--c3)">مشكوك</span>` : ""}</td><td class="n num" style="font-weight:700">${f(a[j])}</td><td class="n num ${cls}">${m.fmt ? (d > 0 ? "+" : "−") + hm(Math.abs(d)) : sgn(d, m.d)}</td></tr>`; }).join("");
+  $("#shMore").innerHTML = moreBtn(rows.length, () => sheetMetric(k));
 }
 
-function renderDrivers(){
-  const box = $("#drivers"); const list = D.drivers || [];
-  if (!list.length) { box.innerHTML = `<div class="empty">تحتاج 20 يوم بيانات على الأقل</div>`; return; }
-  const max = Math.max(...list.map(x => x.diff || 0), 1);
-  box.innerHTML = list.map(x => `
-    <div class="drv ${x.strong ? "" : "weak"}">
-      <div><div class="t">${x.text}</div>
-        <div class="m">متوسط التعافي <span class="num">${nf(x.better_avg)}%</span> مقابل <span class="num">${nf(x.worse_avg)}%</span> · <span class="num">${x.n_better}</span> من <span class="num">${x.n}</span> يوم${x.strong ? "" : " · علاقة ضعيفة"}</div></div>
-      <div class="bar"><i style="width:${(x.diff/max*100).toFixed(0)}%"></i></div>
-      <div class="v num">+${nf(x.diff)}</div>
-    </div>`).join("");
+function sleepExtras(){
+  const s = D.series, n = s.date.length, P = D.sleep_plan;
+  const box = document.createElement("div");
+  const hit = key => P ? P.nights.slice(0,7).filter(x => x[key]).length : 0;
+  box.innerHTML = `
+    ${P ? `<h3>الهدف آخر 7 ليالي</h3><div class="stats">
+      <div><span>متوسط وقت النوم (الهدف 12:00)</span><b class="num">${P.avg7.bed}</b> <span class="muted">${hit("ok_bed")}/7</span></div>
+      <div><span>متوسط أول صحوة (الهدف 8:30)</span><b class="num">${P.avg7.first_wake}</b> <span class="muted">${hit("ok_wake")}/7</span></div>
+      <div><span>متوسط النوم (الهدف 8 ساعات)</span><b class="num">${hm(P.avg7.sleep_h)}</b> <span class="muted">${hit("ok_sleep")}/7</span></div></div>` : ""}
+    <h3>مراحل النوم آخر 30 ليلة</h3>
+    <div class="legend"><span><i style="background:var(--c1)"></i>عميق</span><span><i style="background:var(--c2)"></i>REM</span><span><i style="background:var(--c3)"></i>خفيف</span><span><i style="background:var(--c4)"></i>صاحي</span></div>
+    <div class="chart"><canvas id="shStages"></canvas></div>
+    <h3>وقت النوم والقومة</h3>
+    <div class="chart"><canvas id="shBeds"></canvas></div>
+    <h3>كل ليلة بالتفصيل</h3>
+    <div class="tbl"><table id="shNights"></table></div><div id="shNMore"></div>`;
+  $("#shB").appendChild(box);
+  const st = Math.max(0, n - 30), lab = s.date.slice(st), h = a => a.slice(st).map(v => v == null ? null : +(v/60).toFixed(2));
+  const ds = [["عميق","deep",C.c1],["REM","rem",C.c2],["خفيف","light",C.c3],["صاحي","awake",C.c4]].map(([l,k,c], j, arr) => ({label:l, data:h(s[k]), backgroundColor:c,
+    borderColor:C.card, borderWidth:{top:1.5}, borderSkipped:false, borderRadius: j === arr.length - 1 ? {topLeft:3, topRight:3} : 0, maxBarThickness:18, stack:"s"}));
+  mk("shStages", {type:"bar", data:{labels:lab, datasets:ds}, options:{interaction:{mode:"index", intersect:false},
+    plugins:{tooltip:{callbacks:{title:it => nightOf(it[0].label), label:it => ` ${it.dataset.label}: ${hm(it.raw)}`}}},
+    scales:{x:{...dateX, stacked:true}, y:{...gridY, stacked:true, ticks:{...gridY.ticks, callback:v => v + "س"}}}}});
+  const bl = [], bd = [];
+  for (let i = st; i < n; i++) { if (s.bed_h[i] == null || s.wake_h[i] == null) continue; bl.push(s.date[i]); bd.push([s.bed_h[i], s.wake_h[i] + 24]); }
+  if (bd.length) mk("shBeds", {type:"bar", data:{labels:bl, datasets:[{data:bd, backgroundColor:C.c2, borderRadius:4, borderSkipped:false, maxBarThickness:12}]},
+    options:{plugins:{tooltip:{callbacks:{title:it => nightOf(it[0].label), label:it => ` ${clock(it.raw[0])} ← ${clock(it.raw[1])}`}}},
+      scales:{x:dateX, y:{...gridY, reverse:true, min:Math.floor(Math.min(...bd.map(d=>d[0]))) - 1, max:Math.ceil(Math.max(...bd.map(d=>d[1]))) + 1, ticks:{...gridY.ticks, stepSize:2, callback:v => clock(v)}}}},
+    plugins:[refLine(24, "12:00")]});
+  const rows = []; for (let j = n - 1; j >= 0; j--) if (s.sleep_h[j] != null) rows.push(j);
+  const show = shAll ? rows : rows.slice(0, 30);
+  $("#shNights").innerHTML = `<tr><th>الليلة</th><th class="n">نمت</th><th class="n">قمت</th><th class="n">النوم</th><th class="n">عميق</th><th class="n">REM</th><th class="n">صاحي</th><th class="n">الكفاءة</th></tr>` +
+    show.map(j => `<tr><td>${nightOf(s.date[j])}</td><td class="n num">${clock(s.bed_h[j])}</td><td class="n num">${clock(s.wake_h[j])}</td><td class="n num" style="font-weight:700">${hm(s.sleep_h[j])}</td><td class="n num">${nf(s.deep[j])}</td><td class="n num">${nf(s.rem[j])}</td><td class="n num">${nf(s.awake[j])}</td><td class="n num">${s.eff[j] == null ? "—" : nf(s.eff[j] * 100) + "%"}</td></tr>`).join("");
+  $("#shNMore").innerHTML = moreBtn(rows.length, () => sheetMetric("sleep_h"));
 }
 
-/* trend */
-const METRICS = [
-  {k:"recovery", lbl:"التعافي", unit:"%", d:0},
-  {k:"hrv", lbl:"HRV", unit:"ms", d:0},
-  {k:"rhr", lbl:"نبض الراحة", unit:"bpm", d:0},
-  {k:"sleep_h", lbl:"ساعات النوم", unit:"س", d:1},
-  {k:"nadir_hr", lbl:"أدنى نبض ليلي", unit:"bpm", d:0},
-  {k:"strain", lbl:"الإجهاد", unit:"", d:1},
-  {k:"resp", lbl:"التنفس", unit:"/min", d:1},
-  {k:"skin_temp", lbl:"حرارة الجلد", unit:"°C", d:2},
-  {k:"spo2", lbl:"SpO2", unit:"%", d:1},
-];
-const RANGES = [["30 يوم",30],["90 يوم",90],["6 شهور",180],["سنة",365],["الكل",1e6]];
-let tMetric = "recovery", tRange = 90;
-function setupTrend(){
-  const mb = $("#metricBtns"); mb.innerHTML = "";
-  METRICS.filter(m => (D.series[m.k] || []).some(v => v != null)).forEach(m => {
-    const b = document.createElement("button"); b.className = "btn" + (m.k===tMetric?" on":""); b.textContent = m.lbl;
-    b.onclick = () => { tMetric = m.k; [...mb.children].forEach(c=>c.classList.remove("on")); b.classList.add("on"); drawTrend(); };
-    mb.appendChild(b);
-  });
-  const rb = $("#rangeBtns"); rb.innerHTML = "";
-  RANGES.forEach(([t, n]) => {
-    const b = document.createElement("button"); b.className = "btn" + (n===tRange?" on":""); b.textContent = t;
-    b.onclick = () => { tRange = n; [...rb.children].forEach(c=>c.classList.remove("on")); b.classList.add("on"); drawTrend(); };
-    rb.appendChild(b);
-  });
-  drawTrend();
+/* ─────────── weight ─────────── */
+const BODY = {w0:85.9, wT:77, c0:99, cT:90, date0:"2026-09-26"};
+function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
+function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
+function manualW(){ return bodyLog().filter(x => x.w != null); }
+function allReadings(){
+  // every scale reading (even minutes apart) + manual entries, oldest first
+  const R = [];
+  ((D.scale && D.scale.days) || []).forEach(d => (d.all && d.all.length ? d.all : [{time:d.time, w:d.w, fat:d.fat, used:true}])
+    .forEach(e => R.push({d:d.d, time:e.time, w:e.w, fat:e.fat, imp:e.imp, used:e.used, src:"scale"})));
+  const scaleDays = new Set(R.map(x => x.d));
+  manualW().forEach(x => { if (!scaleDays.has(x.d)) R.push({d:x.d, time:"", w:x.w, src:"manual", used:true}); });
+  return R.sort((a, b) => (a.d + a.time).localeCompare(b.d + b.time));
 }
-function drawTrend(){
-  const m = METRICS.find(x => x.k === tMetric); const s = D.series;
-  const all = s[m.k]; const r7 = roll(all, 7);
-  const start = Math.max(0, all.length - tRange);
-  const labels = s.date.slice(start), y = all.slice(start), yr = r7.slice(start);
-  const susp = (m.k === "hrv" && s.hrv_suspect) ? s.hrv_suspect.slice(start) : null;
-  const note = $("#trendNote");
-  if (susp && susp.some(Boolean) && D.hrv_quality) { note.style.display = "block"; note.innerHTML = `النقاط البرتقالية: HRV قفز لأكثر من الضعف (<span class="num">${D.hrv_quality.high_median}</span> بدل <span class="num">${D.hrv_quality.low_median}</span>) بدون أي تغير في نبض الراحة. هذا غالباً سوار مرخي مو تحسن حقيقي. الأيام المشكوك فيها: <span class="num">${D.hrv_quality.n_total}</span> من <span class="num">${s.hrv.filter(v => v != null).length}</span>.`; }
-  else note.style.display = "none";
-  mk("trend", {type:"line", data:{labels, datasets:[
-      {label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, pointRadius: susp ? susp.map(v => v ? 3 : (labels.length > 120 ? 0 : 2)) : (labels.length > 120 ? 0 : 2),
-       pointBackgroundColor: susp ? susp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0, spanGaps:true, tension:.2},
-      {label:"متوسط 7 أيام", data:yr, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35}]},
-    options:{interaction:{mode:"index", intersect:false},
-      plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${m.k==="sleep_h"?hm(it.raw):nf(it.raw, m.d)} ${m.k==="sleep_h"?"":m.unit}`}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
-              y:{...gridY, ticks:{...gridY.ticks, callback:v => m.k==="sleep_h" ? hm(v) : nf(v, m.d > 1 ? 1 : 0)}}}}});
+function dailyWeights(){ const by = {}; allReadings().forEach(x => { if (x.used || !by[x.d]) by[x.d] = x; }); return Object.values(by).sort((a,b) => a.d.localeCompare(b.d)); }
+function sheetWeight(){
+  const S = D.scale, R = allReadings(), daily = dailyWeights();
+  const waist = bodyLog().filter(x => x.c != null).sort((a,b) => a.d.localeCompare(b.d));
+  const last = R[R.length - 1];
+  const dW = daily.map(x => x.w), a7 = avg(dW.slice(-7));
+  const cLast = waist.length ? waist[waist.length - 1].c : BODY.c0;
+  $("#shB").innerHTML = last ? `
+    <div class="hero"><div class="when">آخر قراءة · ${dlong(last.d)} ${last.time ? `<span class="num">${last.time}</span>` : ""} · ${last.src === "scale" ? "من الميزان" : "يدوي"}</div><span class="v num">${nf(last.w,1)}</span><span class="u">كغ</span></div>
+    <div class="stats">
+      <div><span>عن وزن البداية</span><b class="num">${sgn(last.w - BODY.w0)}</b><span>من ${N(BODY.w0,1)}</span></div>
+      <div><span>باقي للهدف</span><b class="num">${nf(Math.max(0, last.w - BODY.wT),1)}</b><span>الهدف ${N(BODY.wT)}</span></div>
+      <div><span>متوسط آخر 7 أيام</span><b class="num">${nf(a7,1)}</b></div>
+      <div><span>الدهون</span><b class="num">${last.fat != null ? nf(last.fat,1) + "%" : "—"}</b></div>
+      <div><span>الاتجاه بالأسبوع</span><b class="num">${S && S.trend_week != null ? sgn(S.trend_week, 2) : "—"}</b></div>
+      <div><span>عدد القراءات</span><b class="num">${R.length}</b></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--faint)"></i>كل قراءة</span><span><i style="background:var(--c1)"></i>وزن اليوم المعتمد</span></div>
+    <div class="chart lg"><canvas id="shW"></canvas></div>
+    <p class="note">وزن اليوم المعتمد = أول قراءة بين 4 الفجر و12 الظهر. باقي القراءات تنحفظ وتنعرض كلها تحت.</p>
+    <h3>كل القراءات</h3>
+    <div class="tbl"><table id="shWT"></table></div>
+    <h3>الخصر</h3>
+    <div class="row"><input type="number" step="0.5" inputmode="decimal" id="waistIn" class="in" placeholder="الخصر سم"><button class="btn on" id="waistAdd">حفظ</button><span class="muted" style="font-size:12.5px">آخر قياس ${N(cLast,1)} سم · الهدف ${N(BODY.cT)}. ينحفظ على هذا الجهاز.</span></div>
+    ${waist.length ? `<div class="tbl"><table>${waist.slice().reverse().map(x => `<tr><td>${dlong(x.d)}</td><td class="n num">${nf(x.c,1)} سم</td></tr>`).join("")}</table></div>` : ""}`
+    : `<div class="empty">ما فيه قراءات من الميزان بعد</div>`;
+  if (!last) return;
+  const labels = R.map(x => x.d + " " + x.time);
+  const usedSet = new Set(daily.map(x => x.d + " " + x.time));
+  const oneDay = new Set(R.map(x => x.d)).size < 3, wMin = Math.min(...R.map(x => x.w)), wMax = Math.max(...R.map(x => x.w));
+  mk("shW", {type:"line", data:{labels, datasets:[
+      {label:"القراءة", data:R.map(x => x.w), showLine:false, pointRadius:R.length > 150 ? 2 : 3.5, pointHoverRadius:6, pointBackgroundColor:C.faint, pointBorderWidth:0, order:2},
+      {label:"وزن اليوم", data:R.map(x => usedSet.has(x.d + " " + x.time) ? x.w : null), borderColor:C.c1, borderWidth:2, pointRadius:R.length > 60 ? 0 : 4, pointHoverRadius:6, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.3, order:1}]},
+    options:{interaction:{mode:"nearest", axis:"x", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => { const x = R[it[0].dataIndex]; return dlong(x.d) + (x.time ? " · " + x.time : ""); }, label:it => ` ${it.dataset.label}: ${nf(it.raw,1)} كغ`}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){ const l = this.getLabelForValue(v); return oneDay ? l.slice(11) : dshort(l.slice(0,10)); }}},
+              y:{...gridY, suggestedMin:wMin - .4, suggestedMax:wMax + .4, ticks:{...gridY.ticks, callback:v => nf(v,1)}}}}});
+  // full list grouped by day, newest first, every reading shown
+  const byDay = {}; R.forEach(x => (byDay[x.d] = byDay[x.d] || []).push(x));
+  const days = Object.keys(byDay).sort().reverse();
+  $("#shWT").innerHTML = `<tr><th>الوقت</th><th class="n">الوزن كغ</th><th class="n">الدهون</th><th class="n">Ω</th></tr>` + days.map(d => {
+    const L = byDay[d].slice().reverse(); const used = L.find(x => x.used) || L[L.length - 1];
+    return `<tr class="day"><td>${dlong(d)} <span class="tag">${L.length} ${L.length > 1 ? "قراءات" : "قراءة"}</span></td><td class="n num">${nf(used.w,1)}</td><td class="n num">${used.fat != null ? nf(used.fat,1) + "%" : ""}</td><td></td></tr>` +
+      L.map(x => `<tr class="sub"><td><span class="num">${x.time || "—"}</span>${x.used && L.length > 1 ? ` <span class="tag on">المعتمد</span>` : ""}${x.src === "manual" ? ` <span class="tag">يدوي</span>` : ""}</td><td class="n"><b class="num">${nf(x.w,2)}</b></td><td class="n num">${x.fat != null ? nf(x.fat,1) + "%" : "—"}</td><td class="n num">${x.imp != null ? nf(x.imp) : "—"}</td></tr>`).join("");
+  }).join("");
+  $("#waistAdd").onclick = () => {
+    const c = parseFloat($("#waistIn").value); if (isNaN(c)) return;
+    const key = todayKey(); const L = bodyLog(); const o = L.find(x => x.d === key);
+    if (o) o.c = c; else L.push({d:key, w:null, c}); bodySave(L); sheetWeight();
+  };
 }
 
-/* night view */
-function setupNights(){
+/* ─────────── nights ─────────── */
+function sheetNight(){
   const keys = Object.keys(D.curves || {}).sort().reverse();
-  const sel = $("#nightSel");
-  if (!keys.length) { $("#nightCallout").textContent = "ما فيه بيانات نبض ليلية بعد"; return; }
-  sel.innerHTML = keys.map(k => { const d = new Date(k + "T00:00"); d.setDate(d.getDate()-1); return `<option value="${k}">ليلة ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</option>`; }).join("");
-  sel.onchange = () => drawNight(sel.value);
+  if (!keys.length) { $("#shB").innerHTML = `<div class="empty">ما فيه بيانات نبض ليلية</div>`; return; }
+  $("#shB").innerHTML = `<div class="row"><select id="nightSel">${keys.map(k => `<option value="${k}">${nightOf(k)}</option>`).join("")}</select></div>
+    <div class="stats" id="nightStats"></div>
+    <h3>النبض خلال الليل</h3><div class="chart"><canvas id="nightHr"></canvas></div>
+    <h3>مراحل النوم</h3><div class="chart sm"><canvas id="hypno"></canvas></div>`;
+  $("#nightSel").onchange = () => drawNight($("#nightSel").value);
   drawNight(keys[0]);
 }
 function drawNight(k){
-  const c = D.curves[k]; const st = new Date(c.start);
-  const startH = st.getHours() + st.getMinutes()/60;
-  const toClock = m => clock(startH + m/60);
-  const i = D.series.date.indexOf(k);
-  const rec = i >= 0 ? D.series.recovery[i] : null, slp = i >= 0 ? D.series.sleep_h[i] : null;
-  const half = c.nadir_pct < 50 ? "النص الأول" : "النص الثاني";
-  $("#nightCallout").innerHTML = `أدنى نبض <span class="num">${c.nadir_hr}</span> الساعة <span class="num">${c.nadir_clock}</span> بعد <span class="num">${c.nadir_pct}%</span> من النوم (${half} من الليل) · نمت <span class="num">${hm(slp)}</span> · التعافي الصباح <span class="num">${nf(rec)}%</span>`;
-  const pts = c.t.map((t, j) => ({x: Math.max(0, t), y: c.hr[j]}));
-  const end = Math.max(...c.t);
+  const c = D.curves[k], s = D.series, i = s.date.indexOf(k);
+  const st = new Date(c.start), startH = st.getHours() + st.getMinutes() / 60, toClock = m => clock(startH + m / 60);
+  const cell = (l, v) => `<div><span>${l}</span><b class="num">${v}</b></div>`;
+  $("#nightStats").innerHTML = cell("نمت", i >= 0 ? clock(s.bed_h[i]) : "—") + cell("قمت", i >= 0 ? clock(s.wake_h[i]) : "—") + cell("مدة النوم", i >= 0 ? hm(s.sleep_h[i]) : "—")
+    + cell("أدنى نبض", c.nadir_hr + " · " + c.nadir_clock) + cell("أدنى نبض بعد (من الليل)", c.nadir_pct + "%") + cell("التعافي الصباح", i >= 0 ? nf(s.recovery[i]) + "%" : "—");
+  const pts = c.t.map((t, j) => ({x:Math.max(0, t), y:c.hr[j]})), end = Math.max(...c.t);
   const xs = {type:"linear", min:0, max:end, ...gridX, ticks:{...gridX.ticks, stepSize:60, callback:v => toClock(v)}};
   mk("nightHr", {type:"line", data:{datasets:[
       {label:"النبض", data:pts, borderColor:C.c2, borderWidth:2, pointRadius:0, pointHoverRadius:4, pointBackgroundColor:C.c2, tension:.3, fill:{target:"origin"}, backgroundColor:"rgba(59,130,246,.10)"},
-      {label:"أدنى نقطة", data:[pts.reduce((b, p) => Math.abs(p.x - c.nadir_min) < Math.abs(b.x - c.nadir_min) ? p : b, pts[0])], type:"scatter", pointRadius:6, pointHoverRadius:8, pointBackgroundColor:C.gold || "#FCD34D", ...ringPoint}]},
+      {label:"أدنى نقطة", data:[pts.reduce((b, p) => Math.abs(p.x - c.nadir_min) < Math.abs(b.x - c.nadir_min) ? p : b, pts[0])], type:"scatter", pointRadius:6, pointBackgroundColor:C.gold, ...ringPoint}]},
     options:{interaction:{mode:"nearest", axis:"x", intersect:false},
       plugins:{tooltip:{callbacks:{title:it => toClock(it[0].raw.x), label:it => ` ${it.dataset.label}: ${it.raw.y} bpm`}}},
       scales:{x:xs, y:{...gridY, suggestedMin:Math.min(...c.hr.filter(Boolean)) - 4}}}});
-  const H = (D.hypno || {})[k] || [];
-  const LV = {WAKE:4, LATENCY:4, DISTURBANCES:4, REM:3, LIGHT:2, SWS:1};
-  const NAMES = {4:"صاحي", 3:"REM", 2:"خفيف", 1:"عميق"};
-  const hp = []; H.forEach(([a, b, t]) => { const l = LV[t]; if (!l) return; hp.push({x:a, y:l, t}, {x:b, y:l, t}); });
-  mk("hypno", {type:"line", data:{datasets:[{data:hp, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:0, stepped:false, tension:0, fill:{target:{value:0.5}}, backgroundColor:"rgba(5,150,105,.10)"}]},
+  const H = (D.hypno || {})[k] || [], LV = {WAKE:4, LATENCY:4, DISTURBANCES:4, REM:3, LIGHT:2, SWS:1}, NAMES = {4:"صاحي", 3:"REM", 2:"خفيف", 1:"عميق"};
+  const hp = []; H.forEach(([a, b, t]) => { const l = LV[t]; if (l) hp.push({x:a, y:l}, {x:b, y:l}); });
+  mk("hypno", {type:"line", data:{datasets:[{data:hp, borderColor:C.c1, borderWidth:2, pointRadius:0, tension:0, fill:{target:{value:0.5}}, backgroundColor:"rgba(5,150,105,.10)"}]},
     options:{interaction:{mode:"nearest", axis:"x", intersect:false},
       plugins:{tooltip:{callbacks:{title:it => toClock(it[0].raw.x), label:it => " " + NAMES[it.raw.y]}}},
-      scales:{x:{...xs}, y:{...gridY, min:0.5, max:4.5, afterBuildTicks:ax => { ax.ticks = [1,2,3,4].map(v => ({value:v})); }, ticks:{...gridY.ticks, font:{family:"Cairo", size:12}, callback:v => NAMES[v] || ""}}}}});
+      scales:{x:{...xs}, y:{...gridY, min:.5, max:4.5, afterBuildTicks:ax => { ax.ticks = [1,2,3,4].map(v => ({value:v})); }, ticks:{...gridY.ticks, font:{family:"Cairo", size:12}, callback:v => NAMES[v] || ""}}}}});
 }
 
-function renderNadir(){
-  const s = D.series; const n = s.date.length; const st = Math.max(0, n - 60);
-  const lab = s.date.slice(st), v = s.nadir_pct.slice(st);
-  mk("nadir", {type:"bar", data:{labels:lab, datasets:[{data:v, backgroundColor:v.map(x => x == null ? "transparent" : x < 50 ? C.c1 : C.c3),
-      borderRadius:{topLeft:4, topRight:4}, borderSkipped:"start", maxBarThickness:10, categoryPercentage:.9, barPercentage:.9}]},
-    options:{plugins:{tooltip:{callbacks:{title:it => "ليلة " + dlong(it[0].label), label:it => ` بعد ${it.raw}% من النوم`}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
-              y:{...gridY, min:0, max:100, ticks:{...gridY.ticks, stepSize:25, callback:v => v + "%"}}}},
-    plugins:[refLine(50, "")]});
-}
-function refLine(val, txt){
-  return {id:"ref" + val, afterDatasetsDraw(ch){ const {ctx, chartArea:a, scales:{y}} = ch; const py = y.getPixelForValue(val);
-    ctx.save(); ctx.strokeStyle = "#64748B"; ctx.setLineDash([]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke();
-    ctx.fillStyle = "#94A3B8"; ctx.font = "11px Cairo"; ctx.textAlign = "left"; ctx.fillText(txt, a.left + 4, py - 5); ctx.restore(); }};
-}
-
-function renderBeds(){
-  const s = D.series; const n = s.date.length; const st = Math.max(0, n - 45);
-  const lab = [], data = [];
-  for (let i = st; i < n; i++) { if (s.bed_h[i] == null || s.wake_h[i] == null) continue; lab.push(s.date[i]); data.push([s.bed_h[i], s.wake_h[i] + 24]); }
-  mk("beds", {type:"bar", data:{labels:lab, datasets:[{data, backgroundColor:C.c2, borderRadius:4, borderSkipped:false, maxBarThickness:10, categoryPercentage:.9, barPercentage:.9}]},
-    options:{plugins:{tooltip:{callbacks:{title:it => "ليلة " + dlong(it[0].label), label:it => ` ${clock(it.raw[0])} ← ${clock(it.raw[1])}`}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
-              y:{...gridY, reverse:true, beginAtZero:false, min:Math.floor(Math.min(...data.map(d=>d[0]))) - 1, max:Math.ceil(Math.max(...data.map(d=>d[1]))) + 1, ticks:{...gridY.ticks, stepSize:2, callback:v => clock(v)}}}}});
-}
-
-function renderStages(){
-  const s = D.series; const n = s.date.length; const st = Math.max(0, n - 30);
-  const lab = s.date.slice(st); const h = a => a.slice(st).map(v => v == null ? null : +(v/60).toFixed(2));
-  const ds = [["عميق", "deep", C.c1], ["REM", "rem", C.c2], ["خفيف", "light", C.c3], ["صاحي", "awake", C.c4]]
-    .map(([l, k, c], j, arr) => ({label:l, data:h(s[k]), backgroundColor:c, borderColor:C.card, borderWidth:{top:2}, borderSkipped:false,
-      borderRadius: j === arr.length - 1 ? {topLeft:4, topRight:4} : 0, maxBarThickness:22, stack:"s"}));
-  mk("stages", {type:"bar", data:{labels:lab, datasets:ds},
+/* ─────────── workouts ─────────── */
+function sheetWorkouts(){
+  const W = (D.workouts || []).slice().reverse();
+  const H = (D.workouts || []).filter(w => w.hrr1 != null).slice(-60);
+  $("#shB").innerHTML = `
+    ${H.length ? `<h3 style="margin-top:0">نزول النبض بعد دقيقة من نهاية التمرين</h3><div class="chart sm"><canvas id="shHrr"></canvas></div><p class="note">كل ما زاد كان قلبك أسرع في الرجوع للراحة. فوق 12 جيد.</p>` : ""}
+    <h3>كل التمارين</h3>
+    <div class="tbl"><table>${`<tr><th>اليوم</th><th>النشاط</th><th class="n">المدة</th><th class="n">الإجهاد</th><th class="n">متوسط النبض</th><th class="n">أعلى نبض</th><th class="n">سعرات</th></tr>` +
+      W.map(w => `<tr><td>${dshort(w.date)} <span class="muted num">${w.start || ""}</span></td><td>${w.sport || "—"}</td><td class="n"><span class="num">${nf(w.min)}</span> د</td><td class="n num">${nf(w.strain,1)}</td><td class="n num">${nf(w.avg_hr)}</td><td class="n num">${nf(w.max_hr)}</td><td class="n num">${nf(w.kcal)}</td></tr>`).join("")}</table></div>`;
+  if (H.length) mk("shHrr", {type:"line", data:{labels:H.map(w => w.date), datasets:[
+      {label:"التمرين", data:H.map(w => w.hrr1), showLine:false, pointRadius:4, pointBackgroundColor:C.faint, ...ringPoint},
+      {label:"متوسط 8 تمارين", data:roll(H.map(w => w.hrr1), 8), borderColor:C.c1, borderWidth:2, pointRadius:0, tension:.35}]},
     options:{interaction:{mode:"index", intersect:false},
-      plugins:{tooltip:{callbacks:{title:it => "ليلة " + dlong(it[0].label), label:it => ` ${it.dataset.label}: ${hm(it.raw)}`}}},
-      scales:{x:{...gridX, stacked:true, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}},
-              y:{...gridY, stacked:true, ticks:{...gridY.ticks, callback:v => v + "س"}}}}});
+      plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label) + " · " + (H[it[0].dataIndex].sport || ""), label:it => ` ${it.dataset.label}: ${nf(it.raw)} نبضة`}}},
+      scales:{x:dateX, y:{...gridY, suggestedMin:0}}}, plugins:[refLine(12, "12")]});
 }
 
-function renderWeekday(){
-  const w = D.weekday || [];
-  mk("weekday", {type:"bar", data:{labels:w.map(x => x.night.replace("ليلة ", "")), datasets:[{data:w.map(x => x.recovery), backgroundColor:C.c1, borderRadius:{topLeft:4, topRight:4}, borderSkipped:"start", maxBarThickness:24}]},
-    options:{plugins:{tooltip:{callbacks:{title:it => w[it[0].dataIndex].night, label:it => { const x = w[it.dataIndex]; return [` التعافي ${x.recovery}%`, ` النوم ${hm(x.sleep_h)}`, ` وقت النوم ${x.bed}`]; }}}},
-      scales:{x:{...gridX, ticks:{...gridX.ticks, font:{family:"Cairo", size:12}}}, y:{...gridY, min:0, max:100, ticks:{...gridY.ticks, stepSize:25, callback:v => v + "%"}}}},
-    plugins:[{id:"vals", afterDatasetsDraw(ch){ const {ctx} = ch; ctx.save(); ctx.fillStyle = "#F1F5F9"; ctx.font = "600 11.5px Inter"; ctx.textAlign = "center";
-      ch.getDatasetMeta(0).data.forEach((b, i) => { if (w[i].recovery != null) ctx.fillText(w[i].recovery, b.x, b.y - 6); }); ctx.restore(); }}]});
-}
-
-function renderExtra(){
-  const sj = D.social_jetlag;
-  $("#sj").innerHTML = sj ? `<div class="big num">${nf(sj.hours,1)} <span style="font-size:15px" class="muted">ساعة</span></div>
-    <div class="muted" style="font-size:13px">منتصف نومك <span class="num">${sj.weekend_mid}</span> في الويكند مقابل <span class="num">${sj.work_mid}</span> باقي الأسبوع</div>` : `<div class="empty">تحتاج بيانات أكثر</div>`;
-  const R = D.ramadan || [];
-  if (!R.length) { $("#ramadan").innerHTML = ""; return; }
-  const row = (lbl, a, d, f=v=>nf(v)) => `<tr><td>${lbl}</td><td class="n num">${f(a)}</td><td class="n num">${f(d)}</td></tr>`;
-  $("#ramadan").innerHTML = R.map(x => `<h2 style="font-size:15px;margin:0 0 6px">${x.name} مقابل 30 يوم قبله</h2>
-    <table><tr><th></th><th class="n">قبل</th><th class="n">رمضان</th></tr>
-    ${row("التعافي %", ...x.recovery)}${row("HRV", ...x.hrv)}${row("نبض الراحة", ...x.rhr)}${row("النوم", ...x.sleep_h, hm)}${row("وقت النوم", ...x.bed, v=>v)}</table>`).join("<div style='height:14px'></div>");
-}
-
-/* 6-month plan */
+/* ─────────── plan ─────────── */
 const P6 = {
   start:"2026-09-27", end:"2027-03-27",
   phases:[
-    {n:"التأسيس", a:"2026-09-27", b:"2026-10-31", items:[
-      "<b>الإبرة:</b> ثبّت يومها (الأفضل ليلة الخميس) وارفع لـ 5 مع طبيبك بعد 4 أسابيع",
-      "<b>بروتين 140 غرام:</b> سكوب الصبح وسكوب العصر وابدأ كل وجبة بالبروتين",
-      "<b>حديد مرتين:</b> الأحد والأربعاء الصبح 20 دقيقة (برنامج A وB)",
-      "<b>الغرفة:</b> ستارة تعتيم أو غطاء عيون والمكيف ثابت 22 لـ 23",
-      "<b>الكافيين:</b> قهوة اليوم قبل 12 والقهوة العربية بعد العشاء نص بن عادي ونص منزوع",
-      "<b>النوم:</b> قدّمه 20 دقيقة كل 3 أيام لين توصل 12:30",
-      "<b>هالأسبوع:</b> قِس الخصر والضغط وسوّ التحاليل"]},
-    {n:"النوم والعادة", a:"2026-11-01", b:"2026-12-31", items:[
-      "<b>النوم 12:00</b> والشروق صار متأخر فاستغله: ظلام لين 8:15",
-      "<b>مشي 10 دقايق</b> بعد الغدا وكل يوم دوام الساعة 3:45 (ذروة نبضك)",
-      "<b>حديد مرتين</b> ومشي 30 دقيقة مرة في الأسبوع (الجمعة العصر)",
-      "<b>الإبرة 5:</b> ما ترفع لـ 7.5 إلا لو ثبت الوزن 3 أسابيع",
-      "<b>آخر ديسمبر:</b> تحاليل وقياس ومقارنة بالبداية"]},
-    {n:"الدفع", a:"2027-01-01", b:"2027-02-07", items:[
-      "<b>أحلى جو في السنة:</b> مشي إلى هرولة (Couch to 5K) مرتين في الأسبوع",
-      "<b>حديد مرتين</b> وزد الأوزان شوي كل أسبوعين",
-      "<b>الهدف قبل رمضان:</b> الوزن 80 أو أقل والخصر 90 أو أقل"]},
-    {n:"رمضان والتثبيت", a:"2027-02-08", b:"2027-03-27", items:[
-      "<b>رمضان 8 فبراير لـ 9 مارس:</b> الإبرة بنفس يومها (ما تفطّر). سكوب بروتين في السحور وابدأ الفطور بالبروتين",
-      "<b>مويه 2.5 لتر</b> بين الفطور والسحور. الجفاف مع الإبرة هو اللي يتعبك",
-      "<b>حديد بعد التراويح</b> مرتين 15 دقيقة. وقيلولة 20 لـ 30 دقيقة بعد الظهر عادي",
-      "<b>العيد:</b> زيادة كيلو أو اثنين مويه طبيعية وتروح خلال أسبوع",
-      "<b>27 مارس:</b> التحاليل والقياس النهائي"]},
+    {n:"التأسيس", a:"2026-09-27", b:"2026-10-31", items:["بروتين 140 غرام باليوم","حديد مرتين بالأسبوع (الأحد والأربعاء)","غرفة مظلمة والمكيف 22 لـ23","قهوة اليوم قبل 12 الظهر","قدّم النوم 20 دقيقة كل 3 أيام لين 12:30"]},
+    {n:"النوم والعادة", a:"2026-11-01", b:"2026-12-31", items:["النوم 12:00 وظلام لين 8:15","مشي 10 دقايق بعد الغدا","حديد مرتين ومشي 30 دقيقة الجمعة","تحاليل وقياس آخر ديسمبر"]},
+    {n:"الدفع", a:"2027-01-01", b:"2027-02-07", items:["مشي إلى هرولة مرتين بالأسبوع","حديد مرتين وزد الأوزان كل أسبوعين","الهدف قبل رمضان: 80 كغ والخصر 90"]},
+    {n:"رمضان والتثبيت", a:"2027-02-08", b:"2027-03-27", items:["سكوب بروتين في السحور","مويه 2.5 لتر بين الفطور والسحور","حديد بعد التراويح مرتين","27 مارس: التحاليل والقياس النهائي"]},
   ],
   kpis:[
     {k:"sleep_h", l:"ساعات النوم", base:6.4, target:7.5, fmt:v=>hm(v)},
-    {k:"bed_h", l:"وقت النوم", base:25.97, target:24.25, fmt:v=>clock12(v)},
+    {k:"bed_h", l:"وقت النوم", base:25.97, target:24.25, fmt:v=>clock(v)},
     {k:"first_wake_h", l:"أول صحوة", base:7.73, target:8.0, fmt:v=>clock(v)},
     {k:"rhr", l:"نبض الراحة", base:73.7, target:66, fmt:v=>nf(v,0)},
     {k:"recovery", l:"متوسط التعافي", base:45, target:60, fmt:v=>nf(v,0)+"%"},
     {k:"low_strain_pct", l:"أيام خاملة", base:41, target:15, fmt:v=>nf(v,0)+"%"},
-    {k:"strength_per_week", l:"حديد في الأسبوع", base:0.8, target:2, fmt:v=>nf(v,1)},
-    {k:"hot_nights_30d", l:"ليالي حارة في الشهر", base:2.9, target:0, fmt:v=>nf(v,1)},
-    {k:"hr100_min", l:"دقايق نبض فوق 100 بدون تمرين", base:121, target:45, fmt:v=>nf(v,0)},
-  ],
-  body:{w0:85.9, wT:77, c0:99, cT:90, date0:"2026-09-26"}
+    {k:"strength_per_week", l:"حديد بالأسبوع", base:0.8, target:2, fmt:v=>nf(v,1)},
+    {k:"hot_nights_30d", l:"ليالي حارة بالشهر", base:2.9, target:0, fmt:v=>nf(v,1)},
+    {k:"hr100_min", l:"دقايق نبض فوق 100", base:121, target:45, fmt:v=>nf(v,0)},
+  ]
 };
-const clock12 = v => { if (v == null) return "—"; let h = ((v % 24) + 24) % 24; let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if (mm === 60) { hh = (hh + 1) % 24; mm = 0; } if (hh === 0) hh = 12; return hh + ":" + String(mm).padStart(2, "0"); };
-function p6prog(base, now, target){ if (now == null) return 0; const p = (now - base) / (target - base); return Math.max(0, Math.min(100, Math.round(p * 100))); }
-function renderP6(){
-  const N = D.plan6 || {};
-  const today = new Date(); const t0 = new Date(P6.start + "T00:00"), t1 = new Date(P6.end + "T00:00");
-  const total = Math.round((t1 - t0) / 864e5), el = Math.max(0, Math.min(total, Math.round((today - t0) / 864e5)));
-  $("#p6Days").innerHTML = `اليوم <span class="num">${el}</span> من <span class="num">${total}</span> · ينتهي ${dshort(P6.end)} ${P6.end.slice(0,4)}`;
-  $("#p6Fill").style.width = (100 * el / total).toFixed(1) + "%";
-  let cur = P6.phases[0];
-  $("#p6Phases").innerHTML = P6.phases.map((p, i) => {
-    const a = new Date(p.a + "T00:00"), b = new Date(p.b + "T23:59");
-    const st = today > b ? "done" : (today >= a ? "cur" : ""); if (st === "cur") cur = p;
-    return `<div class="${st}"><b>${i+1}. ${p.n}</b>${dshort(p.a)} ← ${dshort(p.b)}</div>`; }).join("");
-  if (today < t0) cur = P6.phases[0];
-  $("#p6Focus").innerHTML = `<div style="font-weight:700;margin-bottom:4px">المرحلة الحالية: ${cur.n}</div>` + cur.items.map(x => "– " + x).join("<br>");
-  $("#p6Table").innerHTML = `<tr><th>المؤشر</th><th class="n">البداية</th><th class="n">الحين</th><th class="n">الهدف</th><th style="width:120px">التقدم</th></tr>` +
-    P6.kpis.map(k => { const now = N[k.k]; const pr = p6prog(k.base, now, k.target);
-      return `<tr><td>${k.l}</td><td class="n num">${k.fmt(k.base)}</td><td class="n num" style="font-weight:700">${now == null ? "—" : k.fmt(now)}</td><td class="n num">${k.fmt(k.target)}</td><td><div class="pbar"><i style="width:${pr}%"></i></div></td></tr>`; }).join("");
-  renderBody();
-}
-function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
-function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
-let bodyShowAll = false;
-function renderBody(){
-  const S = D.scale || null;                 // يوصل تلقائي من الميزان (تطبيق التلفزيون)
-  const L = bodyLog().sort((a,b) => a.d.localeCompare(b.d));   // اليدوي على هذا الجهاز
-  const B = P6.body;
-  const byDate = {};
-  byDate[B.date0] = {d:B.date0, w:B.w0, src:"start"};
-  (S ? S.days : []).forEach(x => byDate[x.d] = {d:x.d, w:x.w, fat:x.fat, time:x.time, src:"scale", each:x.all || []});
-  L.forEach(x => { const o = byDate[x.d] || {d:x.d};
-    if (x.w != null && o.src !== "scale") { o.w = x.w; o.src = "manual"; }
-    if (x.c != null) o.c = x.c;
-    byDate[x.d] = o; });
-  const all = Object.values(byDate).sort((a, b) => a.d.localeCompare(b.d));
-  const pts = all.filter(x => x.w != null);
-  const last = pts[pts.length - 1];
-  const w = last ? last.w : B.w0;
-  const cRow = all.filter(x => x.c != null).pop(); const c = cRow ? cRow.c : null;
-  const wd = w - B.w0;
-  const dayN = d => Math.round(new Date(d + "T00:00") / 864e5);
-  const win = (from, to) => { const e = dayN(last ? last.d : B.date0); return pts.filter(x => x.src !== "start" && e - dayN(x.d) >= to && e - dayN(x.d) < from); };
-  const avg7 = S && S.avg7 != null ? S.avg7 : avg(win(7, 0).map(x => x.w));
-  const prev7 = avg(win(14, 7).map(x => x.w));
-  const wk = S && S.week_change != null ? S.week_change : (avg7 != null && prev7 != null ? avg7 - prev7 : null);
-  const avg30 = S && S.avg30 != null ? S.avg30 : avg(win(30, 0).map(x => x.w));
-  const sgn = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), 1);
-  const src = last ? (last.src === "scale" ? `من الميزان${last.time ? " · " + last.time : ""}` : last.src === "manual" ? "يدوي" : "البداية") : "";
-  $("#bodyHint").textContent = S
-    ? `يوصل تلقائي من الميزان كل صباح (آخر قياس ${dlong(S.last.date)} ${S.last.time}). وتقدر تسجّل يدوي، ينحفظ على هذا الجهاز فقط.`
-    : "سجّل مرة في الأسبوع الصبح. ينحفظ على هذا الجهاز فقط. (لما تربط الميزان بتطبيق التلفزيون يوصل الوزن لحاله كل صباح.)";
-  const stat = (big, label) => `<div><div class="big num">${big}</div><div class="muted" style="font-size:13px">${label}</div></div>`;
-  $("#bodyStats").innerHTML = `<div class="row" style="gap:28px;margin:6px 0 4px">
-    ${stat(nf(w,1), `الوزن${src ? " (" + src + ")" : ""} · <span class="num">${wd>0?"+":""}${nf(wd,1)}</span> من البداية · باقي <span class="num">${nf(Math.max(0, w - B.wT),1)}</span> للهدف ${B.wT}`)}
-    ${stat(avg7 == null ? "—" : nf(avg7,1), `متوسط 7 أيام · <span class="num">${sgn(wk)}</span> عن الأسبوع اللي قبله`)}
-    ${stat(avg30 == null ? "—" : nf(avg30,1), "متوسط 30 يوم" + (S && S.trend_week != null ? ` · الاتجاه <span class="num">${sgn(S.trend_week)}</span> كغ بالأسبوع` : ""))}
-    ${S && S.last.fat != null ? stat(nf(S.last.fat,1) + "%", "الدهون (من الميزان)" + (S.fat7 != null ? ` · متوسط 7 أيام <span class="num">${nf(S.fat7,1)}%</span>` : "")) : ""}
-    ${stat(c == null ? "—" : nf(c,1), "الخصر · الهدف " + B.cT)}</div>`;
-  $("#bodyChartWrap").style.display = pts.length > 1 ? "block" : "none";
-  $("#bodyLegend").style.display = pts.length > 1 ? "" : "none";
-  if (pts.length > 1) {
-    const ma = pts.map(p => { const e = dayN(p.d); return avg(pts.filter(q => q.src !== "start" && e - dayN(q.d) >= 0 && e - dayN(q.d) < 7).map(q => q.w)); });
-    mk("bodyChart", {type:"line", data:{labels:pts.map(x=>x.d), datasets:[
-        {label:"الوزن", data:pts.map(x=>x.w), showLine:false, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:C.faint, ...ringPoint, order:2},
-        {label:"متوسط 7 أيام", data:ma, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, tension:.35, spanGaps:true, order:1}]},
-      options:{interaction:{mode:"index", intersect:false},
-        plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${nf(it.raw,1)} كغ`}}},
-        scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}}, y:{...gridY, suggestedMin:B.wT - 2}}},
-      plugins:[refLine(B.wT, "الهدف")]});
-  }
-  const tag = x => x.src === "scale" ? `<span class="muted" style="font-size:12px">ميزان${x.time ? " " + x.time : ""}</span>` : x.src === "manual" ? `<span class="muted" style="font-size:12px">يدوي</span>` : "";
-  const rows = all.filter(x => x.src !== "start").reverse();
-  const shown = bodyShowAll ? rows : rows.slice(0, 7);
-  const n1 = (v, unit) => `<span class="num">${v}</span>${unit ? " " + unit : ""}`;
-  const vals = x => [x.w != null ? n1(nf(x.w,1), "كغ") : null, x.fat != null ? n1(nf(x.fat,1) + "%") : null, x.c != null ? n1(nf(x.c,1), "سم") : null].filter(Boolean).join(" · ");
-  $("#bodyList").innerHTML = shown.map(x => {
-    const line = `<span>${dlong(x.d)} ${tag(x)}</span><span>${vals(x)}</span>`;
-    const each = x.each || [];
-    if (each.length < 2) return `<div class="bodyrow">${line}</div>`;
-    // أكثر من قياس باليوم: تضغط وتطلع كلها بأوقاتها
-    return `<details class="bodyday"><summary class="bodyrow"><span>${dlong(x.d)} ${tag(x)} <span class="more">· ${each.length} قياسات ▾</span></span><span>${vals(x)}</span></summary>
-      <div class="bodyall">${each.map(e => `<div><span><span class="num">${e.time}</span>${e.used ? " · المعتمد لليوم" : ""}</span><span><b>${n1(nf(e.w,1), "كغ")}</b>${e.fat != null ? " · " + n1(nf(e.fat,1) + "%") : ""}${e.imp != null ? " · " + n1(nf(e.imp,0), "Ω") : ""}</span></div>`).join("")}</div></details>`;
-  }).join("") + (rows.length > 7 ? `<button class="btn" id="bodyMore" style="margin-top:10px">${bodyShowAll ? "أقل" : "كل الأيام (" + rows.length + ")"}</button>` : "");
-  const mb = $("#bodyMore"); if (mb) mb.onclick = () => { bodyShowAll = !bodyShowAll; renderBody(); };
-}
-$("#bwAdd").addEventListener("click", () => {
-  const w = parseFloat($("#bwW").value), c = parseFloat($("#bwC").value);
-  if (isNaN(w) && isNaN(c)) return;
-  const d = new Date(); const key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-  const L = bodyLog().filter(x => x.d !== key); L.push({d:key, w:isNaN(w)?null:w, c:isNaN(c)?null:c}); bodySave(L);
-  $("#bwW").value = ""; $("#bwC").value = ""; renderBody();
-});
-$("#bwCopy").addEventListener("click", () => { const t = bodyLog().map(x => `${x.d}\t${x.w ?? ""}\t${x.c ?? ""}`).join("\n"); try { navigator.clipboard.writeText("date\tweight\twaist\n" + t); $("#bwCopy").textContent = "تم النسخ"; setTimeout(() => $("#bwCopy").textContent = "نسخ السجل", 1500); } catch(e) {} });
-
-function renderPlan(){
-  const P = D.sleep_plan;
-  if (!P) { $("#planCard").style.display = "none"; return; }
-  const t = P.target, a = P.avg7;
-  $("#planHint").innerHTML = `الهدف: تنام <span class="num">${t.bed}</span> وما تصحى قبل <span class="num">${t.wake}</span> وتنام <span class="num">${t.sleep_h}</span> ساعات. أول صحوة = أول مرة صحيت فيها 3 دقايق أو أكثر بعد 5 الفجر.`;
-  const mark = ok => ok ? `<span style="color:var(--good)">✓</span>` : `<span style="color:var(--muted)">✗</span>`;
-  const hit = k => P.nights.slice(0,7).filter(n => n[k]).length;
-  $("#plan").innerHTML = `
-    <div class="row" style="gap:28px;margin-bottom:10px">
-      <div><div class="big num">${a.bed}</div><div class="muted" style="font-size:13px">متوسط وقت النوم (7 ليالي) · حققته <span class="num">${hit("ok_bed")}/7</span></div></div>
-      <div><div class="big num">${a.first_wake}</div><div class="muted" style="font-size:13px">متوسط أول صحوة · حققته <span class="num">${hit("ok_wake")}/7</span></div></div>
-      <div><div class="big num">${hm(a.sleep_h)}</div><div class="muted" style="font-size:13px">متوسط النوم · حققته <span class="num">${hit("ok_sleep")}/7</span></div></div>
-    </div>
-    <div style="overflow-x:auto"><table><tr><th>الليلة</th><th class="n">نمت</th><th class="n">أول صحوة</th><th class="n">قمت</th><th class="n">ساعات النوم</th></tr>
-    ${P.nights.map(n => { const d = new Date(n.date + "T00:00"); d.setDate(d.getDate()-1);
-      return `<tr><td>ليلة ${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</td><td class="n"><span class="num">${n.bed}</span> ${mark(n.ok_bed)}</td><td class="n"><span class="num">${n.first_wake}</span> ${mark(n.ok_wake)}</td><td class="n num">${n.up}</td><td class="n"><span class="num">${hm(n.sleep_h)}</span> ${mark(n.ok_sleep)}</td></tr>`; }).join("")}
-    </table></div>`;
+function curPhase(){ const t = new Date(); return P6.phases.find(p => t >= new Date(p.a + "T00:00") && t <= new Date(p.b + "T23:59")) || P6.phases[t < new Date(P6.start) ? 0 : 3]; }
+function sheetPlan(){
+  const Q = D.plan6 || {}, ph = curPhase();
+  const prog = (b, now, t) => now == null ? 0 : Math.max(0, Math.min(100, Math.round((now - b) / (t - b) * 100)));
+  const daily = dailyWeights(), lw = daily.length ? daily[daily.length - 1].w : null;
+  $("#shB").innerHTML = `
+    <div class="focus"><div style="font-weight:700;margin-bottom:4px">المرحلة الحالية: <b>${ph.n}</b> <span class="muted" style="font-weight:400">من ${dshort(ph.a)} إلى ${dshort(ph.b)}</span></div>${ph.items.map(x => "– " + x).join("<br>")}</div>
+    <h3>المؤشرات (آخر 14 يوم)</h3>
+    <div class="tbl"><table><tr><th>المؤشر</th><th class="n">البداية</th><th class="n">الحين</th><th class="n">الهدف</th><th>التقدم</th></tr>
+    ${P6.kpis.map(k => { const now = Q[k.k]; return `<tr><td>${k.l}</td><td class="n num">${k.fmt(k.base)}</td><td class="n num" style="font-weight:700">${now == null ? "—" : k.fmt(now)}</td><td class="n num">${k.fmt(k.target)}</td><td><div class="pbar"><i style="width:${prog(k.base, now, k.target)}%"></i></div></td></tr>`; }).join("")}
+    <tr><td>الوزن</td><td class="n num">${nf(BODY.w0,1)}</td><td class="n num" style="font-weight:700">${nf(lw,1)}</td><td class="n num">${BODY.wT}</td><td><div class="pbar"><i style="width:${prog(BODY.w0, lw, BODY.wT)}%"></i></div></td></tr>
+    </table></div>
+    <h3>المراحل</h3>
+    <div class="tbl"><table>${P6.phases.map((p, i) => `<tr${p === ph ? ' class="day"' : ""}><td>${i + 1}. ${p.n}</td><td class="n">من ${dshort(p.a)} إلى ${dshort(p.b)}</td></tr>`).join("")}</table></div>`;
 }
 
-function renderNaps(){
-  const N = D.naps || {count:0, recent:[]};
-  if (!N.count && !(N.recent || []).length) { $("#naps").innerHTML = `<div class="empty">ما فيه قيلولة مسجلة في آخر 90 يوم</div>`; return; }
-  const eff = N.recovery_after_nap != null ? `<div class="muted" style="font-size:13px;margin-top:6px">التعافي الصباح بعد يوم فيه قيلولة <span class="num">${N.recovery_after_nap}%</span> مقابل <span class="num">${N.recovery_no_nap}%</span> بدونها (<span class="num">${N.n_after_nap}</span> يوم)</div>` : "";
-  $("#naps").innerHTML = `
-    <div class="row" style="gap:28px;margin-bottom:6px">
-      <div><div class="big num">${N.count}</div><div class="muted" style="font-size:13px">قيلولة في <span class="num">${N.days_with}</span> يوم</div></div>
-      <div><div class="big num">${nf(N.avg_min)}<span style="font-size:15px" class="muted"> د</span></div><div class="muted" style="font-size:13px">متوسط المدة</div></div>
-      <div><div class="big num">${N.typical_start || "—"}</div><div class="muted" style="font-size:13px">الوقت المعتاد</div></div>
-    </div>${eff}
-    <div style="overflow-x:auto;margin-top:14px"><table><tr><th>التاريخ</th><th class="n">من</th><th class="n">إلى</th><th class="n">المدة</th></tr>
-    ${N.recent.map(x => `<tr><td>${dlong(x.date)}</td><td class="n num">${x.start}</td><td class="n num">${x.end}</td><td class="n"><span class="num">${nf(x.min)}</span> د</td></tr>`).join("")}</table></div>`;
+/* ─────────── patterns ─────────── */
+function sheetPatterns(){
+  const L = D.drivers || [], max = Math.max(...L.map(x => x.diff || 0), 1), w = D.weekday || [], sj = D.social_jetlag;
+  $("#shB").innerHTML = `
+    <p class="note" style="margin-top:0">متوسط تعافيك في الأيام اللي فيها العادة مقابل الأيام اللي ما فيها.</p>
+    ${L.map(x => `<div class="drv ${x.strong ? "" : "weak"}"><div>${x.text}<div class="muted" style="font-size:12px">${P(x.better_avg)} مقابل ${P(x.worse_avg)}</div></div><div class="bar"><i style="width:${(x.diff / max * 100).toFixed(0)}%"></i></div><div class="num" style="font-weight:700">+${nf(x.diff)}</div></div>`).join("")}
+    <h3>التعافي حسب ليلة الأسبوع</h3><div class="chart sm"><canvas id="shWk"></canvas></div>
+    ${sj ? `<p class="note">منتصف نومك في الويكند <span class="num">${sj.weekend_mid}</span> وفي الدوام <span class="num">${sj.work_mid}</span>. الفرق ${N(sj.hours,1)} ساعة.</p>` : ""}`;
+  if (w.length) mk("shWk", {type:"bar", data:{labels:w.map(x => x.night.replace("ليلة ", "")), datasets:[{data:w.map(x => x.recovery), backgroundColor:C.c1, borderRadius:{topLeft:4, topRight:4}, borderSkipped:"start", maxBarThickness:26}]},
+    options:{plugins:{tooltip:{callbacks:{title:it => w[it[0].dataIndex].night, label:it => { const x = w[it.dataIndex]; return [` التعافي ${x.recovery}%`, ` النوم ${hm(x.sleep_h)}`, ` وقت النوم ${x.bed}`]; }}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, font:{family:"Cairo", size:12}}}, y:{...gridY, min:0, max:100, ticks:{...gridY.ticks, stepSize:25, callback:v => v + "%"}}}}});
 }
 
-function renderWorkouts(){
-  const W = (D.workouts || []).filter(w => w.hrr1 != null);
-  if (!W.length) { $("#hrr").parentElement.innerHTML = `<div class="empty">ما فيه تمارين مسجلة بنبض كافي</div>`; }
-  else {
-    const last = W.slice(-60);
-    const r8 = roll(last.map(w => w.hrr1), 8);
-    mk("hrr", {type:"line", data:{labels:last.map(w => w.date), datasets:[
-        {label:"التمرين", data:last.map(w => w.hrr1), showLine:false, pointRadius:4, pointHoverRadius:6, pointBackgroundColor:C.faint, ...ringPoint},
-        {label:"متوسط 8 تمارين", data:r8, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, tension:.35}]},
-      options:{interaction:{mode:"index", intersect:false},
-        plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label) + " · " + (last[it[0].dataIndex].sport || ""), label:it => ` ${it.dataset.label}: ${nf(it.raw)} نبضة`}}},
-        scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){return dshort(this.getLabelForValue(v));}}}, y:{...gridY, suggestedMin:0}}},
-      plugins:[refLine(12, "حد 12")]});
-  }
-  const T = (D.workouts || []).slice(-12).reverse();
-  $("#wtable").innerHTML = `<tr><th>التاريخ</th><th>النشاط</th><th class="n">المدة</th><th class="n">Strain</th><th class="n">متوسط النبض</th><th class="n">Zone 4-5</th><th class="n">HRR</th></tr>` +
-    T.map(w => `<tr><td>${dshort(w.date)} <span class="muted num">${w.start || ""}</span></td><td>${w.sport || "—"}</td><td class="n"><span class="num">${nf(w.min)}</span> د</td><td class="n num">${nf(w.strain,1)}</td><td class="n num">${nf(w.avg_hr)}</td><td class="n"><span class="num">${nf(w.z45)}</span> د</td><td class="n num">${nf(w.hrr1)}</td></tr>`).join("");
-}
+/* auto-unlock if remembered */
+(() => { let p = null; try { p = localStorage.getItem("wd_pass"); } catch(e){} if (p) { $("#remember").checked = true; unlock(p, true); } })();
 </script>
 </body>
 </html>
