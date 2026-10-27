@@ -9,6 +9,8 @@ on:
     types: [scale]
   push:
     branches: [main]
+  issue_comment:               # the owner replied «جاهز» on the WHOOP login issue → start sign-in right away
+    types: [created]
 
 permissions:
   contents: write
@@ -20,6 +22,12 @@ concurrency:
 
 jobs:
   sync:
+    # Issue comments only count when the owner writes «جاهز» on the login issue.
+    if: >-
+      github.event_name != 'issue_comment' || (
+        contains(github.event.issue.labels.*.name, 'whoop-login') &&
+        github.event.comment.user.login == github.repository_owner &&
+        (contains(github.event.comment.body, 'جاهز') || contains(github.event.comment.body, 'ready')))
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:

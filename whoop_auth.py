@@ -86,6 +86,9 @@ def _refresh(refresh_token):
 
 # ───────────────────────── code collection ─────────────────────────
 
+_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
+
+
 class GitHubCodeBox:
     """Asks the repo owner for the code through a GitHub issue and waits for the reply."""
 
@@ -135,7 +138,9 @@ class GitHubCodeBox:
                         continue
                     if c["created_at"] < since:
                         continue
-                    m = re.search(pattern, c.get("body") or "")
+                    # Arabic/Persian digits (٠-٩ / ۰-۹) → ASCII, so a code typed on an Arabic keyboard works
+                    body = (c.get("body") or "").translate(_DIGITS)
+                    m = re.search(pattern, body, re.ASCII)
                     if m:
                         return m.group(0), c["id"]
             time.sleep(5)
@@ -163,7 +168,8 @@ def _login_with_code(email, pwd):
     # A scheduled run may fire while the owner is busy: ask first, send the code only when they're ready.
     if box and os.getenv("GITHUB_EVENT_NAME") == "schedule":
         since = _now_iso()
-        box.say(f"@{box.owner} رد بكلمة **جاهز** وقت ما تكون فاضي وأرسل لك رمز WHOOP. أنتظر لين 45 دقيقة.")
+        box.say(f"@{box.owner} رد بكلمة **جاهز** وقت ما تكون فاضي وأرسل لك رمز WHOOP. "
+                "أنتظر لين 45 دقيقة، ولو فاتك الوقت رد **جاهز** في أي وقت وأبدأ على طول.")
         _log("Waiting for the owner to reply 'جاهز' on the login issue...")
         ok, _ = box.wait_for(r"جاهز|ready", since, 45 * 60)
         if not ok:
