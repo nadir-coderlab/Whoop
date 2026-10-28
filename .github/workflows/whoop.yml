@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: data/raw.vault
-          key: whoop-vault-${{ github.run_id }}
+          key: whoop-vault-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: whoop-vault-
 
       - name: Unlock data
@@ -103,7 +103,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: data/raw.vault
-          key: whoop-vault-${{ github.run_id }}
+          key: whoop-vault-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Save scale readings (encrypted) to the scale-data branch
         if: always() && hashFiles('data/scale.changed') != ''
