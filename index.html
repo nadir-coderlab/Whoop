@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0F172A">
+<title>لوحتي الصحية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0F172A; --card:#1E293B; --card2:#172033; --border:#334155; --grid:#2A3649;
+  --text:#F1F5F9; --muted:#94A3B8; --faint:#64748B;
+  --accent:#34D399; --gold:#FCD34D;
+  --c1:#059669; --c2:#3B82F6; --c3:#D97706; --c4:#DB2777;
+  --good:#22C55E; --warn:#EAB308; --bad:#EF4444;
+  --r:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.num{font-family:Inter,Cairo,sans-serif;font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 56px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+h1{font-size:22px;font-weight:800;margin:0}
+.sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.btn{background:transparent;border:1px solid var(--border);color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
+.btn:hover{color:var(--text);border-color:var(--faint)}
+.btn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.muted{color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:16px 0}
+
+/* alert strip */
+.alert{background:#3B1D1D;border:1px solid #7F1D1D;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13.5px;line-height:1.8}
+.alert b{color:#FCA5A5}
+
+/* dashboard grid */
+.sec{font-size:13px;color:var(--faint);font-weight:700;margin:18px 2px 8px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media(max-width:820px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 14px 12px;cursor:pointer;display:flex;flex-direction:column;min-width:0;transition:border-color .15s,transform .15s;-webkit-tap-highlight-color:transparent}
+.c:hover{border-color:var(--faint)}
+.c:active{transform:scale(.985)}
+.c .top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.c .lbl{color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c .chev{color:var(--faint);font-size:14px}
+.c .val{font-size:30px;font-weight:700;line-height:1.1;margin:8px 0 2px}
+.c .val small{font-size:13px;color:var(--muted);font-weight:600;margin-inline-start:3px}
+.c .dl{font-size:12px;color:var(--muted);min-height:18px}
+.c .dl b{font-weight:700}
+.c .spark{margin-top:auto;padding-top:10px}
+.c .spark svg{display:block;width:100%;height:30px;overflow:visible}
+.c .flag{font-size:11.5px;color:var(--warn)}
+.c.wide{grid-column:span 2}
+.c.wide .val{font-size:22px}
+.c .pbar{margin-top:10px}
+.up-good{color:var(--good)} .up-bad{color:var(--bad)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-inline-end:5px;vertical-align:middle}
+
+/* detail sheet */
+#sheet{position:fixed;inset:0;z-index:50;display:none}
+#sheet.on{display:block}
+#sheet .bg{position:absolute;inset:0;background:rgba(2,6,23,.72)}
+#sheet .panel{position:absolute;inset:0;margin:auto;max-width:780px;background:var(--bg);border:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:820px){#sheet .panel{inset:28px 0;border-radius:18px}}
+#sheet .head{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);z-index:2}
+#sheet .head h2{margin:0;font-size:18px;flex:1}
+#sheet .x{background:var(--card);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
+#sheet .body{padding:16px}
+.hero .v{font-size:44px;font-weight:700;line-height:1}
+.hero .u{font-size:15px;color:var(--muted);margin-inline-start:4px}
+.hero .when{color:var(--muted);font-size:13px;margin-bottom:4px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.stats div{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 10px;min-width:0}
+.stats>div>span{display:block;font-size:11.5px;color:var(--muted)}
+.stats b{font-size:17px}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.8}
+.note.w{color:var(--warn)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chart{position:relative;height:240px}
+.chart.lg{height:280px}
+.chart.sm{height:190px}
+h3{font-size:15px;margin:22px 0 8px}
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);font-weight:600;text-align:right;padding:8px 10px;background:var(--card);position:sticky;top:0;white-space:nowrap}
+td{padding:8px 9px;border-top:1px solid var(--grid);white-space:nowrap}
+td.n,th.n{text-align:left}
+tr.day td{background:var(--card2);font-weight:700;color:var(--text)}
+tr.sub td{color:var(--muted)}
+tr.sub td b{color:var(--text);font-weight:600}
+.tag{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:1px 7px;color:var(--muted);margin-inline-start:6px}
+.tag.on{border-color:var(--c1);color:var(--accent)}
+.pbar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;min-width:70px}
+.pbar i{display:block;height:100%;background:var(--c1);border-radius:999px}
+.ok{color:var(--good)} .no{color:var(--faint)}
+.focus{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;line-height:1.9;font-size:13.5px}
+.focus b{color:var(--accent)}
+.drv{display:grid;grid-template-columns:1fr 110px 44px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--grid);font-size:13.5px}
+.drv .bar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden}
+.drv .bar i{display:block;height:100%;background:var(--c1);border-radius:999px}
+.drv.weak{color:var(--muted)} .drv.weak .bar i{background:var(--faint)}
+.in{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;width:120px;direction:ltr;text-align:center}
+select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font:inherit;font-size:13px}
+details.more summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:14px}
+details.more p{font-size:13.5px;line-height:1.9;margin:8px 0 0}
+
+/* lock screen */
+#lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+#lock .box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:380px;text-align:center}
+#lock h1{font-size:22px;margin-bottom:6px}
+#lock input[type=password]{width:100%;margin:18px 0 10px;background:var(--card2);border:1px solid var(--border);color:var(--text);font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;text-align:center}
+#lock button{width:100%;background:var(--accent);color:#052E1F;border:0;font:inherit;font-weight:700;font-size:15px;padding:11px;border-radius:12px;cursor:pointer}
+#lock label{display:flex;gap:8px;justify-content:center;align-items:center;color:var(--muted);font-size:13px;margin-top:12px}
+#err{color:#FCA5A5;font-size:13px;min-height:20px;margin-top:10px}
+#app{display:none}
+</style>
+</head>
+<body>
+<div id="lock">
+  <form class="box" id="lockForm" autocomplete="on">
+    <div style="font-size:34px">🔒</div>
+    <h1>لوحتي الصحية</h1>
+    <div class="sub">البيانات مشفرة وما تنفتح إلا بكلمة المرور</div>
+    <input type="text" name="username" value="whoop" autocomplete="username" hidden>
+    <input type="password" id="pass" placeholder="كلمة المرور" autocomplete="current-password" required>
+    <button type="submit" id="go">افتح</button>
+    <label><input type="checkbox" id="remember"> تذكرني على هذا الجهاز</label>
+    <div id="err"></div>
+  </form>
+</div>
+
+<div id="sheet"><div class="bg"></div><div class="panel"><div class="head"><h2 id="shT"></h2><button class="x" id="shX" aria-label="إغلاق">✕</button></div><div class="body" id="shB"></div></div></div>
+
+<div id="app"><div class="wrap">
+  <header>
+    <div><h1>لوحتي الصحية</h1><div class="sub" id="meta"></div></div>
+    <button class="btn" id="logout">قفل</button>
+  </header>
+  <div id="alerts"></div>
+  <div class="sec">اليوم</div>
+  <div class="cards" id="cardsMain"></div>
+  <div class="sec">مؤشرات النوم الإضافية</div>
+  <div class="cards" id="cardsMore"></div>
+  <div class="sec">التفاصيل</div>
+  <div class="cards" id="cardsWide"></div>
+</div></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {};
+["--c1","--c2","--c3","--c4","--good","--warn","--bad","--muted","--faint","--grid","--text","--card","--accent","--gold"].forEach(k => C[k.slice(2)] = css(k));
+const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const DAYS = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const nf = (v, d=0) => v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
+const dshort = s => { const d = new Date(s + "T00:00"); return d.getDate() + " " + MONTHS[d.getMonth()]; };
+const dlong = s => { const d = new Date(s + "T00:00"); return DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()]; };
+const nightOf = s => { const d = new Date(s + "T00:00"); d.setDate(d.getDate() - 1); return "ليلة " + DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()]; };
+const hm = h => { if (h == null) return "—"; const m = Math.round(h * 60); return Math.floor(m/60) + ":" + String(m%60).padStart(2,"0"); };
+const clock = h => { if (h == null) return "—"; h = ((h % 24) + 24) % 24; return hm(h); };
+const avg = a => { const v = a.filter(x => x != null); return v.length ? v.reduce((s,x)=>s+x,0)/v.length : null; };
+const roll = (a, n) => a.map((_, i) => avg(a.slice(Math.max(0, i-n+1), i+1)));
+const N = (v, d=0, u="") => `<span class="num">${nf(v, d)}</span>${u ? " " + u : ""}`;
+const P = (v, d=0) => `<span class="num">${nf(v, d)}%</span>`;
+const sgn = (v, d=1) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), d);
+const todayKey = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
+
+/* ─────────── decrypt ─────────── */
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decrypt(pkg, pass){
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(pkg.salt), iterations:pkg.iter, hash:"SHA-256"},
+                                            km, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const buf = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(pkg.iv)}, key, b64(pkg.ct));
+  const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return JSON.parse(await new Response(stream).text());
+}
+let PKG = null;
+async function unlock(pass, silent){
+  $("#err").textContent = ""; $("#go").textContent = "جاري الفتح...";
+  try {
+    if (!PKG) PKG = await (await fetch("data.enc.json?" + Date.now(), {cache:"no-store"})).json();
+    const data = await decrypt(PKG, pass);
+    if ($("#remember").checked) { try { localStorage.setItem("wd_pass", pass); } catch(e){} }
+    $("#lock").style.display = "none"; $("#app").style.display = "block";
+    render(data);
+  } catch(e) {
+    console.error(e);
+    try { localStorage.removeItem("wd_pass"); } catch(_){}
+    if (!silent) $("#err").textContent = PKG ? "كلمة المرور غير صحيحة" : "ما قدرت أحمل ملف البيانات";
+    $("#go").textContent = "افتح";
+  }
+}
+$("#lockForm").addEventListener("submit", e => { e.preventDefault(); unlock($("#pass").value); });
+$("#logout").addEventListener("click", () => { try { localStorage.removeItem("wd_pass"); } catch(e){} location.reload(); });
+
+/* ─────────── charts ─────────── */
+Chart.defaults.font.family = "Inter, Cairo, sans-serif";
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = C.muted;
+Chart.defaults.borderColor = C.grid;
+Chart.defaults.maintainAspectRatio = false;
+Chart.defaults.animation = false;
+Chart.defaults.plugins.legend.display = false;
+Object.assign(Chart.defaults.plugins.tooltip, {rtl:true, textDirection:"rtl", backgroundColor:"#0B1222", borderColor:"#334155",
+  borderWidth:1, padding:10, titleFont:{family:"Cairo", weight:"700", size:12.5}, bodyFont:{family:"Cairo", size:12.5},
+  titleColor:"#F1F5F9", bodyColor:"#CBD5E1", boxPadding:4, usePointStyle:true});
+const gridX = {grid:{display:false}, border:{color:C.grid}, ticks:{maxRotation:0, autoSkipPadding:18}};
+const gridY = {grid:{color:C.grid, drawTicks:false}, border:{display:false}, ticks:{padding:8}};
+const dateX = {...gridX, ticks:{...gridX.ticks, callback:function(v){ return dshort(this.getLabelForValue(v)); }}};
+const charts = {};
+function mk(id, cfg){ if (charts[id]) charts[id].destroy(); const el = document.getElementById(id); if (!el) return; charts[id] = new Chart(el, cfg); return charts[id]; }
+const ringPoint = {pointBorderColor: () => C.card, pointBorderWidth: 2};
+function refLine(val, txt){
+  return {id:"ref" + val, afterDatasetsDraw(ch){ const {ctx, chartArea:a, scales:{y}} = ch; const py = y.getPixelForValue(val);
+    if (py < a.top || py > a.bottom) return;
+    ctx.save(); ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke();
+    ctx.fillStyle = "#94A3B8"; ctx.font = "11px Cairo"; ctx.textAlign = "left"; ctx.fillText(txt, a.left + 4, py - 5); ctx.restore(); }};
+}
+function sparkSVG(vals){
+  const v = vals.map((x,i) => [i,x]).filter(p => p[1] != null); if (v.length < 2) return "";
+  const xs = vals.length - 1, lo = Math.min(...v.map(p=>p[1])), hi = Math.max(...v.map(p=>p[1])), rg = (hi - lo) || 1;
+  const pt = p => [(p[0] / xs * 100).toFixed(2), (30 - (p[1] - lo) / rg * 26 - 2).toFixed(2)];
+  const d = v.map((p,i) => (i ? "L" : "M") + pt(p).join(" ")).join(" "); const l = pt(v[v.length-1]);
+  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="${C.faint}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><path d="M${l[0]} ${l[1]}l0 0" stroke="${C.accent}" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+/* ─────────── metrics ─────────── */
+const M = {
+  recovery:{t:"التعافي", sk:"recovery", unit:"%", d:0, good:1, target:60, norm:"أخضر 67 وفوق · أصفر 34 لـ66 · أحمر 33 وتحت. الهدف متوسط 60."},
+  sleep_h:{t:"النوم", sk:"sleep_h", unit:"", d:1, good:1, target:7.5, fmt:hm, norm:"احتياجك حوالي 8.3 ساعة. الهدف 7.5 ساعة وتنام 12:00 وتقوم 8:30."},
+  rhr:{t:"نبض الراحة", sk:"rhr", unit:"bpm", d:0, good:-1, target:66, norm:"الطبيعي وأنت نايم 50 لـ70. الأقل أحسن. ارتفاع 5 فوق معدلك يومين ورا بعض = مرض أو إرهاق. هذا أصدق مؤشر عندك."},
+  hrv:{t:"HRV", sk:"hrv", unit:"ms", d:0, good:1, target:42, norm:"قارن رقمك بمعدلك أنت. الهدف 42."},
+  strain:{t:"الإجهاد", sk:"strain", unit:"", d:1, good:0, target:8, norm:"0 لـ9 خفيف · 10 لـ13 متوسط · 14 وفوق عالي. الهدف 8 لـ12 أغلب الأيام."},
+  resp:{t:"التنفس", sk:"resp", unit:"/د", d:1, good:-1, norm:"الطبيعي 12 لـ20 نفس بالدقيقة. المهم يكون ثابت."},
+  skin:{t:"حرارة الجلد", sk:"skin_temp", unit:"°C", d:1, good:-1, norm:"34.5 وفوق = ليلة حارة. عندك كل ليلة حارة طلع بعدها التعافي سيئ."},
+  spo2:{t:"الأكسجين", sk:"spo2", unit:"%", d:1, good:1, norm:"الطبيعي 95 لـ100. قراءة السوار مو دقيقة طبياً فشوف الاتجاه بس."},
+  nadir:{t:"أدنى نبض بالليل", sk:"nadir_hr", unit:"bpm", d:0, good:-1, norm:"أقل نبض وصلت له وأنت نايم. لو وصل له بدري في الليل فهذا أفضل."},
+  deep:{t:"النوم العميق", sk:"deep", unit:"د", d:0, good:1, norm:"الطبيعي 13 لـ23% من النوم (حوالي 60 لـ110 دقيقة)."},
+  rem:{t:"نوم الأحلام REM", sk:"rem", unit:"د", d:0, good:1, norm:"الطبيعي 20 لـ25% من النوم (حوالي 90 لـ120 دقيقة)."},
+  awake:{t:"الصحوات", sk:"awake", unit:"د", d:0, good:-1, norm:"مجموع الدقايق اللي صحيت فيها خلال الليل. الأقل أحسن."},
+};
+const suspect = k => (k === "hrv" || k === "recovery" || k === "resp");
+function series(k){ return (D.series[M[k].sk] || []); }
+function lastIdx(a){ for (let i = a.length - 1; i >= 0; i--) if (a[i] != null) return i; return -1; }
+function fmtV(k, v){ return M[k].fmt ? M[k].fmt(v) : nf(v, M[k].d); }
+function stats(a){
+  const v = a.filter(x => x != null); if (!v.length) return null;
+  const mean = v.reduce((x,y)=>x+y,0) / v.length; const sd = Math.sqrt(v.reduce((x,y)=>x+(y-mean)**2,0) / v.length);
+  return {mean, sd, min:Math.min(...v), max:Math.max(...v), n:v.length};
+}
+function recDot(v){ const c = v >= 67 ? C.good : v >= 34 ? C.warn : C.bad; return `<span class="dot" style="background:${c}"></span>`; }
+
+/* ─────────── render ─────────── */
+let D;
+function render(data){
+  D = data;
+  const g = new Date(data.meta.generated.replace(" ", "T") + ":00Z");
+  const when = isNaN(g) ? data.meta.generated : g.toLocaleString("en-GB", {timeZone:"Asia/Riyadh", day:"numeric", month:"numeric", hour:"2-digit", minute:"2-digit", hour12:false});
+  $("#meta").innerHTML = `آخر تحديث <span class="num">${when}</span> · <span class="num">${nf(data.meta.days)}</span> يوم بيانات`;
+  const a = D.alerts || [];
+  $("#alerts").innerHTML = a.length ? `<div class="alert">⚠ قراءة اليوم بعيدة عن معدلك: ${a.map(x => `<b>${x.metric}</b> ${N(x.value,1)} (معدلك ${N(x.avg,1)})`).join(" · ")}</div>` : "";
+  renderCards();
+}
+
+function metricCard(k){
+  const m = M[k], a = series(k), i = lastIdx(a); if (i < 0) return null;
+  const v = a[i], s30 = stats(a.slice(-31, -1)), diff = s30 ? v - s30.mean : null;
+  const cls = diff == null || !m.good || Math.abs(diff) < 1e-9 ? "" : (diff * m.good > 0 ? "up-good" : "up-bad");
+  const dtxt = diff == null ? "" : (m.fmt ? (diff > 0 ? "+" : "−") + hm(Math.abs(diff)) : sgn(diff, m.d));
+  const flag = suspect(k) && D.series.hrv_suspect && D.series.hrv_suspect[i] ? `<div class="flag">⚠ قراءة مشكوك فيها</div>` : "";
+  const dot = k === "recovery" ? recDot(v) : "";
+  return {k, html:`<div class="top"><span class="lbl">${dot}${m.t}</span><span class="chev">‹</span></div>
+    <div class="val num">${fmtV(k, v)}<small>${m.unit}</small></div>
+    <div class="dl"><b class="num ${cls}">${dtxt}</b> عن معدل 30 يوم</div>${flag}
+    <div class="spark">${sparkSVG(a.slice(-14))}</div>`};
+}
+function weightCard(){
+  const S = D.scale; const man = manualW();
+  if (!S && !man.length) return {k:"weight", html:`<div class="top"><span class="lbl">الوزن</span><span class="chev">‹</span></div><div class="val">—</div><div class="dl">ما فيه قراءات بعد</div>`};
+  const R = allReadings(); const last = R[R.length - 1];
+  const daily = dailyWeights();
+  const ch = last.w - BODY.w0;
+  return {k:"weight", html:`<div class="top"><span class="lbl">الوزن</span><span class="chev">‹</span></div>
+    <div class="val num">${nf(last.w,1)}<small>كغ</small></div>
+    <div class="dl"><b class="num ${ch < 0 ? "up-good" : ch > 0 ? "up-bad" : ""}">${sgn(ch)}</b> من البداية${last.fat != null ? ` · دهون ${P(last.fat,1)}` : ""}</div>
+    <div class="dl">${N(R.length)} قراءة</div>
+    <div class="spark">${sparkSVG(daily.slice(-14).map(x => x.w))}</div>`};
+}
+function nightCard(){
+  const s = D.series, i = lastIdx(s.sleep_h); if (i < 0) return null;
+  return {k:"night", wide:true, html:`<div class="top"><span class="lbl">الليلة الماضية</span><span class="chev">‹</span></div>
+    <div class="val"><span class="num">${clock(s.bed_h[i])}</span> <span class="muted" style="font-size:15px">←</span> <span class="num">${clock(s.wake_h[i])}</span></div>
+    <div class="dl">نوم <span class="num">${hm(s.sleep_h[i])}</span> · أدنى نبض ${N(s.nadir_hr[i])} · عميق ${N(s.deep[i])} د · REM ${N(s.rem[i])} د</div>
+    <div class="dl muted">منحنى النبض ومراحل النوم لكل ليلة</div>`};
+}
+function workoutsCard(){
+  const W = D.workouts || []; const last = W[W.length - 1];
+  const since = new Date(); since.setDate(since.getDate() - 7);
+  const wk = W.filter(w => new Date(w.date + "T00:00") >= since).length;
+  return {k:"workouts", wide:true, html:`<div class="top"><span class="lbl">التمارين</span><span class="chev">‹</span></div>
+    <div class="val">${N(wk)} <span class="muted" style="font-size:14px">في آخر 7 أيام</span></div>
+    <div class="dl">${last ? `آخر واحد ${dshort(last.date)} · ${last.sport || ""} ${N(last.min)} د` : "ما فيه تمارين"}</div>`};
+}
+function planCard(){
+  const t0 = new Date(P6.start + "T00:00"), t1 = new Date(P6.end + "T00:00");
+  const total = Math.round((t1 - t0) / 864e5), el = Math.max(0, Math.min(total, Math.round((new Date() - t0) / 864e5)));
+  const ph = curPhase();
+  return {k:"plan", wide:true, html:`<div class="top"><span class="lbl">خطة 6 أشهر</span><span class="chev">‹</span></div>
+    <div class="val">اليوم ${N(el)} <span class="muted" style="font-size:14px">من ${N(total)}</span></div>
+    <div class="dl">المرحلة: ${ph.n}</div><div class="pbar"><i style="width:${(100 * el / total).toFixed(1)}%"></i></div>`};
+}
+function patternsCard(){
+  const top = (D.drivers || []).find(x => x.strong);
+  return {k:"patterns", wide:true, html:`<div class="top"><span class="lbl">وش يأثر على تعافيك</span><span class="chev">‹</span></div>
+    <div class="val" style="font-size:17px">${top ? top.text : "—"}</div>
+    <div class="dl">${top ? `تعافي ${P(top.better_avg)} مقابل ${P(top.worse_avg)}` : ""}</div>`};
+}
+function addCards(box, list){
+  box.innerHTML = "";
+  list.filter(Boolean).forEach(c => {
+    const el = document.createElement("div"); el.className = "c" + (c.wide ? " wide" : ""); el.tabIndex = 0; el.setAttribute("role", "button");
+    el.innerHTML = c.html; el.onclick = () => openSheet(c.k); el.onkeydown = e => { if (e.key === "Enter") openSheet(c.k); };
+    box.appendChild(el);
+  });
+}
+function renderCards(){
+  addCards($("#cardsMain"), [metricCard("recovery"), metricCard("sleep_h"), metricCard("rhr"), weightCard(),
+                             metricCard("hrv"), metricCard("strain"), metricCard("skin"), metricCard("resp")]);
+  addCards($("#cardsMore"), [metricCard("nadir"), metricCard("deep"), metricCard("rem"), metricCard("spo2")]);
+  addCards($("#cardsWide"), [nightCard(), workoutsCard(), planCard(), patternsCard()]);
+}
+
+/* ─────────── sheet ─────────── */
+let shRange = 30, shAll = false, curSheet = null;
+function openSheet(k){
+  curSheet = k; shAll = false;
+  $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
+  try { history.pushState({sheet:k}, ""); } catch(e) {}
+  drawSheet(k);
+}
+function drawSheet(k){
+  const T = {weight:"الوزن", night:"الليالي", workouts:"التمارين", plan:"خطة 6 أشهر", patterns:"وش يأثر على تعافيك"};
+  $("#shT").textContent = T[k] || M[k].t;
+  if (k === "weight") sheetWeight(); else if (k === "night") sheetNight(); else if (k === "workouts") sheetWorkouts();
+  else if (k === "plan") sheetPlan(); else if (k === "patterns") sheetPatterns(); else sheetMetric(k);
+  $("#sheet .panel").scrollTop = 0;
+}
+function closeSheet(){ $("#sheet").classList.remove("on"); document.body.style.overflow = ""; curSheet = null; }
+$("#shX").onclick = () => { closeSheet(); try { if (history.state && history.state.sheet) history.back(); } catch(e) {} };
+$("#sheet .bg").onclick = () => $("#shX").onclick();
+window.addEventListener("popstate", closeSheet);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && curSheet) $("#shX").onclick(); });
+
+const RANGES = [["30 يوم",30],["90 يوم",90],["الكل",1e6]];
+function rangeBtns(redraw){
+  return `<div class="row" id="shRanges">${RANGES.map(([t,v]) => `<button class="btn${v===shRange?" on":""}" data-r="${v}">${t}</button>`).join("")}</div>`;
+}
+function bindRanges(redraw){ document.querySelectorAll("#shRanges button").forEach(b => b.onclick = () => { shRange = +b.dataset.r; redraw(); }); }
+function moreBtn(total, redraw){
+  if (total <= 30) return "";
+  setTimeout(() => { const b = $("#shAllBtn"); if (b) b.onclick = () => { shAll = !shAll; redraw(); }; });
+  return `<button class="btn" id="shAllBtn" style="margin-top:10px">${shAll ? "أقل" : `كل الأيام (${total})`}</button>`;
+}
+
+function sheetMetric(k){
+  const m = M[k], s = D.series, a = series(k), n = a.length, i = lastIdx(a);
+  const st7 = stats(a.slice(-7)), st30 = stats(a.slice(-30)), stA = stats(a);
+  const susp = suspect(k) && s.hrv_suspect ? s.hrv_suspect : null;
+  const f = v => v == null ? "—" : fmtV(k, v);
+  const unit = m.unit ? `<span class="u">${m.unit}</span>` : "";
+  const q = D.hrv_quality;
+  const warn = suspect(k) && q && q.n_total ? `<p class="note w">⚠ HRV يقفز بين نمطين (حوالي ${N(q.low_median)} وحوالي ${N(q.high_median)}) بدون ما يتغير نبض الراحة. النقاط البرتقالية مشكوك فيها${k !== "hrv" ? " وهذا المؤشر يتأثر بها" : ""}. اعتمد على نبض الراحة والنوم أكثر.</p>` : "";
+  $("#shB").innerHTML = `
+    <div class="hero"><div class="when">${i >= 0 ? nightOf(s.date[i]).replace("ليلة", "صباح بعد ليلة") : ""}</div><span class="v num">${f(a[i])}</span>${unit}</div>
+    <div class="stats">
+      <div><span>متوسط 7 أيام</span><b class="num">${f(st7 && st7.mean)}</b></div>
+      <div><span>متوسط 30 يوم</span><b class="num">${f(st30 && st30.mean)}</b></div>
+      <div><span>${m.target != null ? "الهدف" : "عدد الأيام"}</span><b class="num">${m.target != null ? f(m.target) : (stA ? stA.n : 0)}</b></div>
+      <div><span>أعلى قراءة</span><b class="num">${f(stA && stA.max)}</b></div>
+      <div><span>أقل قراءة</span><b class="num">${f(stA && stA.min)}</b></div>
+      <div><span>متوسط الكل</span><b class="num">${f(stA && stA.mean)}</b></div>
+    </div>
+    ${rangeBtns()}
+    <div class="legend"><span><i style="background:var(--faint)"></i>اليومي</span><span><i style="background:var(--c1)"></i>متوسط 7 أيام</span>${m.target != null ? `<span><i style="background:#64748B;height:2px"></i>الهدف</span>` : ""}${susp ? `<span><i style="background:var(--c3)"></i>مشكوك فيها</span>` : ""}</div>
+    <div class="chart lg"><canvas id="shChart"></canvas></div>
+    <p class="note">${m.norm}</p>${warn}
+    ${k === "sleep_h" ? "" : `<h3>القراءات يوم بيوم</h3><div class="tbl"><table id="shTable"></table></div><div id="shMore"></div>`}`;
+  bindRanges(() => sheetMetric(k));
+  const start = Math.max(0, n - shRange), labels = s.date.slice(start), y = a.slice(start), r7 = roll(a, 7).slice(start);
+  const sp = susp ? susp.slice(start) : null, many = labels.length > 100;
+  mk("shChart", {type:"line", data:{labels, datasets:[
+      {label:"اليومي", data:y, borderColor:C.faint, borderWidth:1, spanGaps:true, tension:.2,
+       pointRadius: sp ? sp.map(v => v ? 3.5 : (many ? 0 : 2)) : (many ? 0 : 2), pointBackgroundColor: sp ? sp.map(v => v ? C.c3 : C.faint) : C.faint, pointBorderWidth:0},
+      {label:"متوسط 7 أيام", data:r7, borderColor:C.c1, borderWidth:2, pointRadius:0, pointHoverRadius:5, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.35}]},
+    options:{interaction:{mode:"index", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label), label:it => ` ${it.dataset.label}: ${f(it.raw)} ${m.fmt ? "" : m.unit}`}}},
+      scales:{x:dateX, y:{...gridY, ticks:{...gridY.ticks, callback:v => m.fmt ? hm(v) : nf(v, m.d > 0 && k !== "sleep_h" ? 1 : 0)}}}},
+    plugins: m.target != null ? [refLine(m.target, "الهدف")] : []});
+  if (k === "sleep_h") { sleepExtras(); return; }
+  // table: newest first
+  const rows = []; for (let j = n - 1; j >= 0; j--) if (a[j] != null) rows.push(j);
+  const show = shAll ? rows : rows.slice(0, 30);
+  const s30 = st30 ? st30.mean : null;
+  $("#shTable").innerHTML = `<tr><th>اليوم</th><th class="n">القراءة</th><th class="n">عن المعدل</th></tr>` + show.map(j => {
+    const d = s30 != null ? a[j] - s30 : null;
+    const cls = d == null || !m.good ? "" : (d * m.good > 0 ? "up-good" : "up-bad");
+    return `<tr><td>${dlong(s.date[j])}${susp && susp[j] ? ` <span class="tag" style="color:var(--c3);border-color:var(--c3)">مشكوك</span>` : ""}</td><td class="n num" style="font-weight:700">${f(a[j])}</td><td class="n num ${cls}">${m.fmt ? (d > 0 ? "+" : "−") + hm(Math.abs(d)) : sgn(d, m.d)}</td></tr>`; }).join("");
+  $("#shMore").innerHTML = moreBtn(rows.length, () => sheetMetric(k));
+}
+
+function sleepExtras(){
+  const s = D.series, n = s.date.length, P = D.sleep_plan;
+  const box = document.createElement("div");
+  const hit = key => P ? P.nights.slice(0,7).filter(x => x[key]).length : 0;
+  box.innerHTML = `
+    ${P ? `<h3>الهدف آخر 7 ليالي</h3><div class="stats">
+      <div><span>متوسط وقت النوم (الهدف 12:00)</span><b class="num">${P.avg7.bed}</b> <span class="muted">${hit("ok_bed")}/7</span></div>
+      <div><span>متوسط أول صحوة (الهدف 8:30)</span><b class="num">${P.avg7.first_wake}</b> <span class="muted">${hit("ok_wake")}/7</span></div>
+      <div><span>متوسط النوم (الهدف 8 ساعات)</span><b class="num">${hm(P.avg7.sleep_h)}</b> <span class="muted">${hit("ok_sleep")}/7</span></div></div>` : ""}
+    <h3>مراحل النوم آخر 30 ليلة</h3>
+    <div class="legend"><span><i style="background:var(--c1)"></i>عميق</span><span><i style="background:var(--c2)"></i>REM</span><span><i style="background:var(--c3)"></i>خفيف</span><span><i style="background:var(--c4)"></i>صاحي</span></div>
+    <div class="chart"><canvas id="shStages"></canvas></div>
+    <h3>وقت النوم والقومة</h3>
+    <div class="chart"><canvas id="shBeds"></canvas></div>
+    <h3>كل ليلة بالتفصيل</h3>
+    <div class="tbl"><table id="shNights"></table></div><div id="shNMore"></div>`;
+  $("#shB").appendChild(box);
+  const st = Math.max(0, n - 30), lab = s.date.slice(st), h = a => a.slice(st).map(v => v == null ? null : +(v/60).toFixed(2));
+  const ds = [["عميق","deep",C.c1],["REM","rem",C.c2],["خفيف","light",C.c3],["صاحي","awake",C.c4]].map(([l,k,c], j, arr) => ({label:l, data:h(s[k]), backgroundColor:c,
+    borderColor:C.card, borderWidth:{top:1.5}, borderSkipped:false, borderRadius: j === arr.length - 1 ? {topLeft:3, topRight:3} : 0, maxBarThickness:18, stack:"s"}));
+  mk("shStages", {type:"bar", data:{labels:lab, datasets:ds}, options:{interaction:{mode:"index", intersect:false},
+    plugins:{tooltip:{callbacks:{title:it => nightOf(it[0].label), label:it => ` ${it.dataset.label}: ${hm(it.raw)}`}}},
+    scales:{x:{...dateX, stacked:true}, y:{...gridY, stacked:true, ticks:{...gridY.ticks, callback:v => v + "س"}}}}});
+  const bl = [], bd = [];
+  for (let i = st; i < n; i++) { if (s.bed_h[i] == null || s.wake_h[i] == null) continue; bl.push(s.date[i]); bd.push([s.bed_h[i], s.wake_h[i] + 24]); }
+  if (bd.length) mk("shBeds", {type:"bar", data:{labels:bl, datasets:[{data:bd, backgroundColor:C.c2, borderRadius:4, borderSkipped:false, maxBarThickness:12}]},
+    options:{plugins:{tooltip:{callbacks:{title:it => nightOf(it[0].label), label:it => ` ${clock(it.raw[0])} ← ${clock(it.raw[1])}`}}},
+      scales:{x:dateX, y:{...gridY, reverse:true, min:Math.floor(Math.min(...bd.map(d=>d[0]))) - 1, max:Math.ceil(Math.max(...bd.map(d=>d[1]))) + 1, ticks:{...gridY.ticks, stepSize:2, callback:v => clock(v)}}}},
+    plugins:[refLine(24, "12:00")]});
+  const rows = []; for (let j = n - 1; j >= 0; j--) if (s.sleep_h[j] != null) rows.push(j);
+  const show = shAll ? rows : rows.slice(0, 30);
+  $("#shNights").innerHTML = `<tr><th>الليلة</th><th class="n">نمت</th><th class="n">قمت</th><th class="n">النوم</th><th class="n">عميق</th><th class="n">REM</th><th class="n">صاحي</th><th class="n">الكفاءة</th></tr>` +
+    show.map(j => `<tr><td>${nightOf(s.date[j])}</td><td class="n num">${clock(s.bed_h[j])}</td><td class="n num">${clock(s.wake_h[j])}</td><td class="n num" style="font-weight:700">${hm(s.sleep_h[j])}</td><td class="n num">${nf(s.deep[j])}</td><td class="n num">${nf(s.rem[j])}</td><td class="n num">${nf(s.awake[j])}</td><td class="n num">${s.eff[j] == null ? "—" : nf(s.eff[j] * 100) + "%"}</td></tr>`).join("");
+  $("#shNMore").innerHTML = moreBtn(rows.length, () => sheetMetric("sleep_h"));
+}
+
+/* ─────────── weight ─────────── */
+const BODY = {w0:85.9, wT:77, c0:99, cT:90, date0:"2026-09-26"};
+function bodyLog(){ try { return JSON.parse(localStorage.getItem("wd_body") || "[]"); } catch(e) { return []; } }
+function bodySave(list){ try { localStorage.setItem("wd_body", JSON.stringify(list)); } catch(e) {} }
+function manualW(){ return bodyLog().filter(x => x.w != null); }
+function allReadings(){
+  // every scale reading (even minutes apart) + manual entries, oldest first
+  const R = [];
+  ((D.scale && D.scale.days) || []).forEach(d => (d.all && d.all.length ? d.all : [{time:d.time, w:d.w, fat:d.fat, used:true}])
+    .forEach(e => R.push({d:d.d, time:e.time, w:e.w, fat:e.fat, imp:e.imp, used:e.used, src:"scale"})));
+  const scaleDays = new Set(R.map(x => x.d));
+  manualW().forEach(x => { if (!scaleDays.has(x.d)) R.push({d:x.d, time:"", w:x.w, src:"manual", used:true}); });
+  return R.sort((a, b) => (a.d + a.time).localeCompare(b.d + b.time));
+}
+function dailyWeights(){ const by = {}; allReadings().forEach(x => { if (x.used || !by[x.d]) by[x.d] = x; }); return Object.values(by).sort((a,b) => a.d.localeCompare(b.d)); }
+function sheetWeight(){
+  const S = D.scale, R = allReadings(), daily = dailyWeights();
+  const waist = bodyLog().filter(x => x.c != null).sort((a,b) => a.d.localeCompare(b.d));
+  const last = R[R.length - 1];
+  const dW = daily.map(x => x.w), a7 = avg(dW.slice(-7));
+  const cLast = waist.length ? waist[waist.length - 1].c : BODY.c0;
+  $("#shB").innerHTML = last ? `
+    <div class="hero"><div class="when">آخر قراءة · ${dlong(last.d)} ${last.time ? `<span class="num">${last.time}</span>` : ""} · ${last.src === "scale" ? "من الميزان" : "يدوي"}</div><span class="v num">${nf(last.w,1)}</span><span class="u">كغ</span></div>
+    <div class="stats">
+      <div><span>عن وزن البداية</span><b class="num">${sgn(last.w - BODY.w0)}</b><span>من ${N(BODY.w0,1)}</span></div>
+      <div><span>باقي للهدف</span><b class="num">${nf(Math.max(0, last.w - BODY.wT),1)}</b><span>الهدف ${N(BODY.wT)}</span></div>
+      <div><span>متوسط آخر 7 أيام</span><b class="num">${nf(a7,1)}</b></div>
+      <div><span>الدهون</span><b class="num">${last.fat != null ? nf(last.fat,1) + "%" : "—"}</b></div>
+      <div><span>الاتجاه بالأسبوع</span><b class="num">${S && S.trend_week != null ? sgn(S.trend_week, 2) : "—"}</b></div>
+      <div><span>عدد القراءات</span><b class="num">${R.length}</b></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--faint)"></i>كل قراءة</span><span><i style="background:var(--c1)"></i>وزن اليوم المعتمد</span></div>
+    <div class="chart lg"><canvas id="shW"></canvas></div>
+    <p class="note">وزن اليوم المعتمد = أول قراءة بين 4 الفجر و12 الظهر. باقي القراءات تنحفظ وتنعرض كلها تحت.</p>
+    <h3>كل القراءات</h3>
+    <div class="tbl"><table id="shWT"></table></div>
+    <h3>الخصر</h3>
+    <div class="row"><input type="number" step="0.5" inputmode="decimal" id="waistIn" class="in" placeholder="الخصر سم"><button class="btn on" id="waistAdd">حفظ</button><span class="muted" style="font-size:12.5px">آخر قياس ${N(cLast,1)} سم · الهدف ${N(BODY.cT)}. ينحفظ على هذا الجهاز.</span></div>
+    ${waist.length ? `<div class="tbl"><table>${waist.slice().reverse().map(x => `<tr><td>${dlong(x.d)}</td><td class="n num">${nf(x.c,1)} سم</td></tr>`).join("")}</table></div>` : ""}`
+    : `<div class="empty">ما فيه قراءات من الميزان بعد</div>`;
+  if (!last) return;
+  const labels = R.map(x => x.d + " " + x.time);
+  const usedSet = new Set(daily.map(x => x.d + " " + x.time));
+  const oneDay = new Set(R.map(x => x.d)).size < 3, wMin = Math.min(...R.map(x => x.w)), wMax = Math.max(...R.map(x => x.w));
+  mk("shW", {type:"line", data:{labels, datasets:[
+      {label:"القراءة", data:R.map(x => x.w), showLine:false, pointRadius:R.length > 150 ? 2 : 3.5, pointHoverRadius:6, pointBackgroundColor:C.faint, pointBorderWidth:0, order:2},
+      {label:"وزن اليوم", data:R.map(x => usedSet.has(x.d + " " + x.time) ? x.w : null), borderColor:C.c1, borderWidth:2, pointRadius:R.length > 60 ? 0 : 4, pointHoverRadius:6, pointBackgroundColor:C.c1, ...ringPoint, spanGaps:true, tension:.3, order:1}]},
+    options:{interaction:{mode:"nearest", axis:"x", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => { const x = R[it[0].dataIndex]; return dlong(x.d) + (x.time ? " · " + x.time : ""); }, label:it => ` ${it.dataset.label}: ${nf(it.raw,1)} كغ`}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, callback:function(v){ const l = this.getLabelForValue(v); return oneDay ? l.slice(11) : dshort(l.slice(0,10)); }}},
+              y:{...gridY, suggestedMin:wMin - .4, suggestedMax:wMax + .4, ticks:{...gridY.ticks, callback:v => nf(v,1)}}}}});
+  // full list grouped by day, newest first, every reading shown
+  const byDay = {}; R.forEach(x => (byDay[x.d] = byDay[x.d] || []).push(x));
+  const days = Object.keys(byDay).sort().reverse();
+  $("#shWT").innerHTML = `<tr><th>الوقت</th><th class="n">الوزن كغ</th><th class="n">الدهون</th><th class="n">Ω</th></tr>` + days.map(d => {
+    const L = byDay[d].slice().reverse(); const used = L.find(x => x.used) || L[L.length - 1];
+    return `<tr class="day"><td>${dlong(d)} <span class="tag">${L.length} ${L.length > 1 ? "قراءات" : "قراءة"}</span></td><td class="n num">${nf(used.w,1)}</td><td class="n num">${used.fat != null ? nf(used.fat,1) + "%" : ""}</td><td></td></tr>` +
+      L.map(x => `<tr class="sub"><td><span class="num">${x.time || "—"}</span>${x.used && L.length > 1 ? ` <span class="tag on">المعتمد</span>` : ""}${x.src === "manual" ? ` <span class="tag">يدوي</span>` : ""}</td><td class="n"><b class="num">${nf(x.w,2)}</b></td><td class="n num">${x.fat != null ? nf(x.fat,1) + "%" : "—"}</td><td class="n num">${x.imp != null ? nf(x.imp) : "—"}</td></tr>`).join("");
+  }).join("");
+  $("#waistAdd").onclick = () => {
+    const c = parseFloat($("#waistIn").value); if (isNaN(c)) return;
+    const key = todayKey(); const L = bodyLog(); const o = L.find(x => x.d === key);
+    if (o) o.c = c; else L.push({d:key, w:null, c}); bodySave(L); sheetWeight();
+  };
+}
+
+/* ─────────── nights ─────────── */
+function sheetNight(){
+  const keys = Object.keys(D.curves || {}).sort().reverse();
+  if (!keys.length) { $("#shB").innerHTML = `<div class="empty">ما فيه بيانات نبض ليلية</div>`; return; }
+  $("#shB").innerHTML = `<div class="row"><select id="nightSel">${keys.map(k => `<option value="${k}">${nightOf(k)}</option>`).join("")}</select></div>
+    <div class="stats" id="nightStats"></div>
+    <h3>النبض خلال الليل</h3><div class="chart"><canvas id="nightHr"></canvas></div>
+    <h3>مراحل النوم</h3><div class="chart sm"><canvas id="hypno"></canvas></div>`;
+  $("#nightSel").onchange = () => drawNight($("#nightSel").value);
+  drawNight(keys[0]);
+}
+function drawNight(k){
+  const c = D.curves[k], s = D.series, i = s.date.indexOf(k);
+  const st = new Date(c.start), startH = st.getHours() + st.getMinutes() / 60, toClock = m => clock(startH + m / 60);
+  const cell = (l, v) => `<div><span>${l}</span><b class="num">${v}</b></div>`;
+  $("#nightStats").innerHTML = cell("نمت", i >= 0 ? clock(s.bed_h[i]) : "—") + cell("قمت", i >= 0 ? clock(s.wake_h[i]) : "—") + cell("مدة النوم", i >= 0 ? hm(s.sleep_h[i]) : "—")
+    + cell("أدنى نبض", c.nadir_hr + " · " + c.nadir_clock) + cell("أدنى نبض بعد (من الليل)", c.nadir_pct + "%") + cell("التعافي الصباح", i >= 0 ? nf(s.recovery[i]) + "%" : "—");
+  const pts = c.t.map((t, j) => ({x:Math.max(0, t), y:c.hr[j]})), end = Math.max(...c.t);
+  const xs = {type:"linear", min:0, max:end, ...gridX, ticks:{...gridX.ticks, stepSize:60, callback:v => toClock(v)}};
+  mk("nightHr", {type:"line", data:{datasets:[
+      {label:"النبض", data:pts, borderColor:C.c2, borderWidth:2, pointRadius:0, pointHoverRadius:4, pointBackgroundColor:C.c2, tension:.3, fill:{target:"origin"}, backgroundColor:"rgba(59,130,246,.10)"},
+      {label:"أدنى نقطة", data:[pts.reduce((b, p) => Math.abs(p.x - c.nadir_min) < Math.abs(b.x - c.nadir_min) ? p : b, pts[0])], type:"scatter", pointRadius:6, pointBackgroundColor:C.gold, ...ringPoint}]},
+    options:{interaction:{mode:"nearest", axis:"x", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => toClock(it[0].raw.x), label:it => ` ${it.dataset.label}: ${it.raw.y} bpm`}}},
+      scales:{x:xs, y:{...gridY, suggestedMin:Math.min(...c.hr.filter(Boolean)) - 4}}}});
+  const H = (D.hypno || {})[k] || [], LV = {WAKE:4, LATENCY:4, DISTURBANCES:4, REM:3, LIGHT:2, SWS:1}, NAMES = {4:"صاحي", 3:"REM", 2:"خفيف", 1:"عميق"};
+  const hp = []; H.forEach(([a, b, t]) => { const l = LV[t]; if (l) hp.push({x:a, y:l}, {x:b, y:l}); });
+  mk("hypno", {type:"line", data:{datasets:[{data:hp, borderColor:C.c1, borderWidth:2, pointRadius:0, tension:0, fill:{target:{value:0.5}}, backgroundColor:"rgba(5,150,105,.10)"}]},
+    options:{interaction:{mode:"nearest", axis:"x", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => toClock(it[0].raw.x), label:it => " " + NAMES[it.raw.y]}}},
+      scales:{x:{...xs}, y:{...gridY, min:.5, max:4.5, afterBuildTicks:ax => { ax.ticks = [1,2,3,4].map(v => ({value:v})); }, ticks:{...gridY.ticks, font:{family:"Cairo", size:12}, callback:v => NAMES[v] || ""}}}}});
+}
+
+/* ─────────── workouts ─────────── */
+function sheetWorkouts(){
+  const W = (D.workouts || []).slice().reverse();
+  const H = (D.workouts || []).filter(w => w.hrr1 != null).slice(-60);
+  $("#shB").innerHTML = `
+    ${H.length ? `<h3 style="margin-top:0">نزول النبض بعد دقيقة من نهاية التمرين</h3><div class="chart sm"><canvas id="shHrr"></canvas></div><p class="note">كل ما زاد كان قلبك أسرع في الرجوع للراحة. فوق 12 جيد.</p>` : ""}
+    <h3>كل التمارين</h3>
+    <div class="tbl"><table>${`<tr><th>اليوم</th><th>النشاط</th><th class="n">المدة</th><th class="n">الإجهاد</th><th class="n">متوسط النبض</th><th class="n">أعلى نبض</th><th class="n">سعرات</th></tr>` +
+      W.map(w => `<tr><td>${dshort(w.date)} <span class="muted num">${w.start || ""}</span></td><td>${w.sport || "—"}</td><td class="n"><span class="num">${nf(w.min)}</span> د</td><td class="n num">${nf(w.strain,1)}</td><td class="n num">${nf(w.avg_hr)}</td><td class="n num">${nf(w.max_hr)}</td><td class="n num">${nf(w.kcal)}</td></tr>`).join("")}</table></div>`;
+  if (H.length) mk("shHrr", {type:"line", data:{labels:H.map(w => w.date), datasets:[
+      {label:"التمرين", data:H.map(w => w.hrr1), showLine:false, pointRadius:4, pointBackgroundColor:C.faint, ...ringPoint},
+      {label:"متوسط 8 تمارين", data:roll(H.map(w => w.hrr1), 8), borderColor:C.c1, borderWidth:2, pointRadius:0, tension:.35}]},
+    options:{interaction:{mode:"index", intersect:false},
+      plugins:{tooltip:{callbacks:{title:it => dlong(it[0].label) + " · " + (H[it[0].dataIndex].sport || ""), label:it => ` ${it.dataset.label}: ${nf(it.raw)} نبضة`}}},
+      scales:{x:dateX, y:{...gridY, suggestedMin:0}}}, plugins:[refLine(12, "12")]});
+}
+
+/* ─────────── plan ─────────── */
+const P6 = {
+  start:"2026-09-27", end:"2027-03-27",
+  phases:[
+    {n:"التأسيس", a:"2026-09-27", b:"2026-10-31", items:["بروتين 140 غرام باليوم","حديد مرتين بالأسبوع (الأحد والأربعاء)","غرفة مظلمة والمكيف 22 لـ23","قهوة اليوم قبل 12 الظهر","قدّم النوم 20 دقيقة كل 3 أيام لين 12:30"]},
+    {n:"النوم والعادة", a:"2026-11-01", b:"2026-12-31", items:["النوم 12:00 وظلام لين 8:15","مشي 10 دقايق بعد الغدا","حديد مرتين ومشي 30 دقيقة الجمعة","تحاليل وقياس آخر ديسمبر"]},
+    {n:"الدفع", a:"2027-01-01", b:"2027-02-07", items:["مشي إلى هرولة مرتين بالأسبوع","حديد مرتين وزد الأوزان كل أسبوعين","الهدف قبل رمضان: 80 كغ والخصر 90"]},
+    {n:"رمضان والتثبيت", a:"2027-02-08", b:"2027-03-27", items:["سكوب بروتين في السحور","مويه 2.5 لتر بين الفطور والسحور","حديد بعد التراويح مرتين","27 مارس: التحاليل والقياس النهائي"]},
+  ],
+  kpis:[
+    {k:"sleep_h", l:"ساعات النوم", base:6.4, target:7.5, fmt:v=>hm(v)},
+    {k:"bed_h", l:"وقت النوم", base:25.97, target:24.25, fmt:v=>clock(v)},
+    {k:"first_wake_h", l:"أول صحوة", base:7.73, target:8.0, fmt:v=>clock(v)},
+    {k:"rhr", l:"نبض الراحة", base:73.7, target:66, fmt:v=>nf(v,0)},
+    {k:"recovery", l:"متوسط التعافي", base:45, target:60, fmt:v=>nf(v,0)+"%"},
+    {k:"low_strain_pct", l:"أيام خاملة", base:41, target:15, fmt:v=>nf(v,0)+"%"},
+    {k:"strength_per_week", l:"حديد بالأسبوع", base:0.8, target:2, fmt:v=>nf(v,1)},
+    {k:"hot_nights_30d", l:"ليالي حارة بالشهر", base:2.9, target:0, fmt:v=>nf(v,1)},
+    {k:"hr100_min", l:"دقايق نبض فوق 100", base:121, target:45, fmt:v=>nf(v,0)},
+  ]
+};
+function curPhase(){ const t = new Date(); return P6.phases.find(p => t >= new Date(p.a + "T00:00") && t <= new Date(p.b + "T23:59")) || P6.phases[t < new Date(P6.start) ? 0 : 3]; }
+function sheetPlan(){
+  const Q = D.plan6 || {}, ph = curPhase();
+  const prog = (b, now, t) => now == null ? 0 : Math.max(0, Math.min(100, Math.round((now - b) / (t - b) * 100)));
+  const daily = dailyWeights(), lw = daily.length ? daily[daily.length - 1].w : null;
+  $("#shB").innerHTML = `
+    <div class="focus"><div style="font-weight:700;margin-bottom:4px">المرحلة الحالية: <b>${ph.n}</b> <span class="muted" style="font-weight:400">من ${dshort(ph.a)} إلى ${dshort(ph.b)}</span></div>${ph.items.map(x => "– " + x).join("<br>")}</div>
+    <h3>المؤشرات (آخر 14 يوم)</h3>
+    <div class="tbl"><table><tr><th>المؤشر</th><th class="n">البداية</th><th class="n">الحين</th><th class="n">الهدف</th><th>التقدم</th></tr>
+    ${P6.kpis.map(k => { const now = Q[k.k]; return `<tr><td>${k.l}</td><td class="n num">${k.fmt(k.base)}</td><td class="n num" style="font-weight:700">${now == null ? "—" : k.fmt(now)}</td><td class="n num">${k.fmt(k.target)}</td><td><div class="pbar"><i style="width:${prog(k.base, now, k.target)}%"></i></div></td></tr>`; }).join("")}
+    <tr><td>الوزن</td><td class="n num">${nf(BODY.w0,1)}</td><td class="n num" style="font-weight:700">${nf(lw,1)}</td><td class="n num">${BODY.wT}</td><td><div class="pbar"><i style="width:${prog(BODY.w0, lw, BODY.wT)}%"></i></div></td></tr>
+    </table></div>
+    <h3>المراحل</h3>
+    <div class="tbl"><table>${P6.phases.map((p, i) => `<tr${p === ph ? ' class="day"' : ""}><td>${i + 1}. ${p.n}</td><td class="n">من ${dshort(p.a)} إلى ${dshort(p.b)}</td></tr>`).join("")}</table></div>`;
+}
+
+/* ─────────── patterns ─────────── */
+function sheetPatterns(){
+  const L = D.drivers || [], max = Math.max(...L.map(x => x.diff || 0), 1), w = D.weekday || [], sj = D.social_jetlag;
+  $("#shB").innerHTML = `
+    <p class="note" style="margin-top:0">متوسط تعافيك في الأيام اللي فيها العادة مقابل الأيام اللي ما فيها.</p>
+    ${L.map(x => `<div class="drv ${x.strong ? "" : "weak"}"><div>${x.text}<div class="muted" style="font-size:12px">${P(x.better_avg)} مقابل ${P(x.worse_avg)}</div></div><div class="bar"><i style="width:${(x.diff / max * 100).toFixed(0)}%"></i></div><div class="num" style="font-weight:700">+${nf(x.diff)}</div></div>`).join("")}
+    <h3>التعافي حسب ليلة الأسبوع</h3><div class="chart sm"><canvas id="shWk"></canvas></div>
+    ${sj ? `<p class="note">منتصف نومك في الويكند <span class="num">${sj.weekend_mid}</span> وفي الدوام <span class="num">${sj.work_mid}</span>. الفرق ${N(sj.hours,1)} ساعة.</p>` : ""}`;
+  if (w.length) mk("shWk", {type:"bar", data:{labels:w.map(x => x.night.replace("ليلة ", "")), datasets:[{data:w.map(x => x.recovery), backgroundColor:C.c1, borderRadius:{topLeft:4, topRight:4}, borderSkipped:"start", maxBarThickness:26}]},
+    options:{plugins:{tooltip:{callbacks:{title:it => w[it[0].dataIndex].night, label:it => { const x = w[it.dataIndex]; return [` التعافي ${x.recovery}%`, ` النوم ${hm(x.sleep_h)}`, ` وقت النوم ${x.bed}`]; }}}},
+      scales:{x:{...gridX, ticks:{...gridX.ticks, font:{family:"Cairo", size:12}}}, y:{...gridY, min:0, max:100, ticks:{...gridY.ticks, stepSize:25, callback:v => v + "%"}}}}});
+}
+
+/* auto-unlock if remembered */
+(() => { let p = null; try { p = localStorage.getItem("wd_pass"); } catch(e){} if (p) { $("#remember").checked = true; unlock(p, true); } })();
+</script>
+</body>
+</html>
